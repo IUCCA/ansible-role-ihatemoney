@@ -22,7 +22,7 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
                 {% endif %}
                 --label-file={{ ihatemoney_base_path }}/labels \
                 --network={{ ihatemoney_container_network }} \
-                --mount type=bind,src={{ ihatemoney_data_path }},dst=/data \
+                --mount type=bind,src={{ ihatemoney_data_path }},dst=/etc/ihatemoney \
                 --env-file={{ ihatemoney_base_path }}/env \
                 {% if ihatemoney_container_extra_arguments | length > 0 %}
                 {{ ihatemoney_container_extra_arguments | join(' ') }} \
