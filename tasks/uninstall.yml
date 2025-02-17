@@ -1,0 +1,29 @@
+---
+
+- name: Check existence of ihatemoney systemd service
+  ansible.builtin.stat:
+    path: "{{ devture_systemd_docker_base_systemd_path }}/{{ ihatemoney_identifier }}.service"
+  register: ihatemoney_service_stat
+
+- when: ihatemoney_service_stat.stat.exists | bool
+  block:
+    - name: Ensure ihatemoney systemd service is stopped
+      ansible.builtin.service:
+        name: "{{ item }}"
+        state: stopped
+        enabled: false
+        daemon_reload: true
+      with_items:
+        - "{{ ihatemoney_identifier }}.service"
+
+    - name: Ensure ihatemoney systemd service does not exist
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      with_items:
+        - "{{ devture_systemd_docker_base_systemd_path }}/{{ ihatemoney_identifier }}.service"
+
+    - name: Ensure ihatemoney path doesn't exist
+      ansible.builtin.file:
+        path: "{{ ihatemoney_base_path }}"
+        state: absent

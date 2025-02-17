@@ -1,0 +1,44 @@
+---
+- name: Ensure ihatemoney paths exist
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: 0750
+    owner: 0
+    group: 0
+  with_items:
+    - "{{ ihatemoney_base_path }}"
+    - "{{ ihatemoney_data_path }}"
+
+
+- name: Ensure ihatemoney support files installed
+  ansible.builtin.template:
+    src: "{{ role_path }}/templates/{{ item }}.j2"
+    dest: "{{ ihatemoney_base_path }}/{{ item }}"
+    mode: 0640
+    owner: "{{ ihatemoney_uid }}"
+    group: "{{ ihatemoney_gid }}"
+  with_items:
+    - env
+    - labels
+
+
+- name: Ensure ihatemoney container image is pulled
+  community.docker.docker_image:
+    name: "{{ item.image }}"
+    source: "{{ 'pull' if ansible_version.major > 2 or ansible_version.minor > 7 else omit }}"
+  with_items:
+    - {image: "{{ ihatemoney_container_image }}"}
+
+- name: Ensure ihatemoney container network is created
+  community.general.docker_network:
+    name: "{{ ihatemoney_container_network }}"
+    driver: bridge
+
+- name: Ensure ihatemoney systemd service is present
+  ansible.builtin.template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    mode: 0644
+  with_items:
+    - {src: "{{ role_path }}/templates/systemd/ihatemoney.service.j2", dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ ihatemoney_identifier }}.service"}

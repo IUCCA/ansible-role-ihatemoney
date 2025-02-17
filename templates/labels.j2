@@ -1,0 +1,41 @@
+{% if ihatemoney_container_labels_traefik_enabled %}
+traefik.enable=true
+
+{% if ihatemoney_container_labels_traefik_docker_network %}
+traefik.docker.network={{ ihatemoney_container_labels_traefik_docker_network }}
+{% endif %}
+
+{% set middlewares = [] %}
+
+{% if ihatemoney_container_labels_traefik_additional_request_headers.keys() | length > 0 %}
+{% for name, value in ihatemoney_container_labels_traefik_additional_request_headers.items() %}
+traefik.http.middlewares.{{ ihatemoney_identifier }}-add-request-headers.headers.customrequestheaders.{{ name }}={{ value }}
+{% endfor %}
+{% set middlewares = middlewares + [ihatemoney_identifier + '-add-request-headers'] %}
+{% endif %}
+
+{% if ihatemoney_container_labels_traefik_additional_response_headers.keys() | length > 0 %}
+{% for name, value in ihatemoney_container_labels_traefik_additional_response_headers.items() %}
+traefik.http.middlewares.{{ ihatemoney_identifier }}-add-response-headers.headers.customresponseheaders.{{ name }}={{ value }}
+{% endfor %}
+{% set middlewares = middlewares + [ihatemoney_identifier + '-add-response-headers'] %}
+{% endif %}
+
+traefik.http.routers.{{ ihatemoney_identifier }}.rule={{ ihatemoney_container_labels_traefik_rule }}
+{% if ihatemoney_container_labels_traefik_priority | int > 0 %}
+traefik.http.routers.{{ ihatemoney_identifier }}.priority={{ ihatemoney_container_labels_traefik_priority }}
+{% endif %}
+traefik.http.routers.{{ ihatemoney_identifier }}.service={{ ihatemoney_identifier }}
+{% if middlewares | length > 0 %}
+traefik.http.routers.{{ ihatemoney_identifier }}.middlewares={{ middlewares | join(',') }}
+{% endif %}
+traefik.http.routers.{{ ihatemoney_identifier }}.entrypoints={{ ihatemoney_container_labels_traefik_entrypoints }}
+traefik.http.routers.{{ ihatemoney_identifier }}.tls={{ ihatemoney_container_labels_traefik_tls | to_json }}
+{% if ihatemoney_container_labels_traefik_tls %}
+traefik.http.routers.{{ ihatemoney_identifier }}.tls.certResolver={{ ihatemoney_container_labels_traefik_tls_certResolver }}
+{% endif %}
+
+traefik.http.services.{{ ihatemoney_identifier }}.loadbalancer.server.port={{ ihatemoney_environment_variable_ihatemoney_port }}
+{% endif %}
+
+{{ ihatemoney_container_labels_additional_labels }}

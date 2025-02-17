@@ -1,0 +1,184 @@
+---
+
+# Project source code URL: https://github.com/ihatemoneyRecipes/recipes
+
+ihatemoney_enabled: false
+
+ihatemoney_identifier: ihatemoney
+
+ihatemoney_scheme: https
+
+# The fully-qualified name of your ihatemoney server (e.g. `ihatemoney.example.com`)
+ihatemoney_hostname: ''
+
+ihatemoney_path_prefix: /
+
+ihatemoney_version: 6.1.5
+
+ihatemoney_uid: ''
+ihatemoney_gid: ''
+
+ihatemoney_systemd_required_services_list: "{{ ihatemoney_systemd_required_services_list_default + ihatemoney_systemd_required_services_list_auto + ihatemoney_systemd_required_services_list_custom }}"
+ihatemoney_systemd_required_services_list_default: ['docker.service']
+ihatemoney_systemd_required_services_list_auto: []
+ihatemoney_systemd_required_services_list_custom: []
+
+ihatemoney_systemd_wanted_services_list: "{{ ihatemoney_systemd_wanted_services_list_default + ihatemoney_systemd_wanted_services_list_auto + ihatemoney_systemd_wanted_services_list_custom }}"
+ihatemoney_systemd_wanted_services_list_default: []
+ihatemoney_systemd_wanted_services_list_auto: []
+ihatemoney_systemd_wanted_services_list_custom: []
+
+ihatemoney_base_path: "/{{ ihatemoney_base_path }}/ihatemoney"
+ihatemoney_data_path: "{{ihatemoney_base_path}}/data"
+
+ihatemoney_container_image: "{{ ihatemoney_container_image_registry_prefix }}ihatemoney/ihatemoney:{{ ihatemoney_container_image_tag }}"
+ihatemoney_container_image_tag: "{{ ihatemoney_version }}"
+ihatemoney_container_image_force_pull: "{{ ihatemoney_container_image.endswith(':latest') }}"
+ihatemoney_container_image_registry_prefix: docker.io/
+# A list of extra arguments to pass to the api container
+ihatemoney_container_extra_arguments: []
+
+ihatemoney_container_http_host_bind_port: ''
+
+ihatemoney_admin_password: ''
+ihatemoney_environment_variable_secret: ''
+ihatemoney_environment_variable_public: false
+
+# ihatemoney_container_additional_environment_variables contains a multiline string with additional environment variables to pass to the container.
+#
+# Example:
+# ihatemoney_container_additional_environment_variables: |
+#   VAR=1
+#   ANOTHER=value
+ihatemoney_container_additional_environment_variables: ''
+
+# A list of additional "mounts" to be mounted in the container.
+# Contains definition objects like this:
+# ihatemoney_container_additional_mounts:
+# - "type=bind|volume|tmpfs,source=/outside,target=/inside,readonly,bind-propagation=slave"
+ihatemoney_container_additional_mounts: []
+
+ihatemoney_container_network: "{{ ihatemoney_identifier }}"
+
+# A list of additional container networks that the container would be connected to.
+# The playbook does not create these networks, so make sure they already exist.
+ihatemoney_container_additional_networks: "{{ ihatemoney_container_additional_networks_auto + ihatemoney_container_additional_networks_custom }}"
+ihatemoney_container_additional_networks_auto: []
+ihatemoney_container_additional_networks_custom: []
+
+ihatemoney_database_type: postgres
+ihatemoney_database_hostname: ''
+ihatemoney_database_port: 5432
+ihatemoney_database_name: ihatemoney
+ihatemoney_database_username: ''
+ihatemoney_database_password: ''
+
+# A list of mail configuration parameters for ihatemoney.
+ihatemoney_email_host: ''
+ihatemoney_email_port: ''
+ihatemoney_host_user: ''
+ihatemoney_host_password: ''
+ihatemoney_use_tls: '0'
+ihatemoney_use_ssl: '0'
+ihatemoney_default_from_email: '' # email sender address (default 'localhost')
+
+# ihatemoney_container_labels_traefik_enabled controls whether labels to assist a Traefik reverse-proxy will be attached to the container.
+# See `../templates/labels.j2` for details.
+#
+# To inject your own other container labels, see `ihatemoney_container_labels_additional_labels`.
+ihatemoney_container_labels_additional_labels: ''
+ihatemoney_container_labels_traefik_enabled: true
+ihatemoney_container_labels_traefik_docker_network: ''
+ihatemoney_container_labels_traefik_hostname: "{{ ihatemoney_hostname }}"
+# The path prefix must either be `/` or not end with a slash (e.g. `/ihatemoney`).
+ihatemoney_container_labels_traefik_path_prefix: "{{ ihatemoney_path_prefix }}"
+# Controls whether `/.well-known/{carddav,caldav}` will be redirected to `/remote.php/dav/`
+ihatemoney_container_labels_traefik_rule: "Host(`{{ ihatemoney_container_labels_traefik_hostname }}`){% if ihatemoney_container_labels_traefik_path_prefix != '/' %} && PathPrefix(`{{ ihatemoney_container_labels_traefik_path_prefix | quote }}`){% endif %}"
+ihatemoney_container_labels_traefik_priority: 0
+ihatemoney_container_labels_traefik_entrypoints: web-secure
+ihatemoney_container_labels_traefik_tls: "{{ ihatemoney_container_labels_traefik_entrypoints != 'web' }}"
+ihatemoney_container_labels_traefik_tls_certResolver: default  # noqa var-naming
+
+# Controls which additional headers to attach to all HTTP requests.
+# To add your own custom request headers, use `ihatemoney_container_labels_traefik_additional_response_headers_custom`
+ihatemoney_container_labels_traefik_additional_request_headers: "{{ ihatemoney_container_labels_traefik_additional_request_headers_auto | combine(ihatemoney_container_labels_traefik_additional_request_headers_custom) }}"
+ihatemoney_container_labels_traefik_additional_request_headers_auto: {}
+ihatemoney_container_labels_traefik_additional_request_headers_custom: {}
+
+# Controls which additional headers to attach to all HTTP responses.
+# To add your own custom response headers, use `ihatemoney_container_labels_traefik_additional_response_headers_custom`
+ihatemoney_container_labels_traefik_additional_response_headers: "{{ ihatemoney_container_labels_traefik_additional_response_headers_auto | combine(ihatemoney_container_labels_traefik_additional_response_headers_custom) }}"
+ihatemoney_container_labels_traefik_additional_response_headers_auto: |
+  {{
+    {}
+    | combine ({'X-XSS-Protection': ihatemoney_http_header_xss_protection} if ihatemoney_http_header_xss_protection else {})
+    | combine ({'X-Frame-Options': ihatemoney_http_header_frame_options} if ihatemoney_http_header_frame_options else {})
+    | combine ({'X-Content-Type-Options': ihatemoney_http_header_content_type_options} if ihatemoney_http_header_content_type_options else {})
+    | combine ({'Content-Security-Policy': ihatemoney_http_header_content_security_policy} if ihatemoney_http_header_content_security_policy else {})
+    | combine ({'Permission-Policy': ihatemoney_http_header_content_permission_policy} if ihatemoney_http_header_content_permission_policy else {})
+    | combine ({'Strict-Transport-Security': ihatemoney_http_header_strict_transport_security} if ihatemoney_http_header_strict_transport_security and ihatemoney_container_labels_traefik_tls else {})
+  }}
+ihatemoney_container_labels_traefik_additional_response_headers_custom: {}
+
+# A list of middlewares to add to the service.
+# Add your own via the `ihatemoney_container_labels_traefik_http_middlewares_custom` variable.
+ihatemoney_container_labels_traefik_http_middlewares: "{{ ihatemoney_container_labels_traefik_http_middlewares_default + ihatemoney_container_labels_traefik_http_middlewares_auto + ihatemoney_container_labels_traefik_http_middlewares_custom }}"
+
+ihatemoney_container_labels_traefik_http_middlewares_default: {}
+ihatemoney_container_labels_traefik_http_middlewares_auto: []
+ihatemoney_container_labels_traefik_http_middlewares_custom: []
+
+# Controls the ihatemoney environment debug variable
+ihatemoney_environment_variable_ihatemoney_port: 8000
+# Specifies the value of the `X-XSS-Protection` header
+# Stops pages from loading when they detect reflected cross-site scripting (XSS) attacks.
+#
+# Learn more about it is here:
+# - https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection
+# - https://portswigger.net/web-security/cross-site-scripting/reflected
+ihatemoney_http_header_xss_protection: "1; mode=block"
+
+# Specifies the value of the `X-Frame-Options` header which controls whether framing can happen.
+# See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options
+ihatemoney_http_header_frame_options: SAMEORIGIN
+
+# Specifies the value of the `X-Content-Type-Options` header.
+# See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options
+ihatemoney_http_header_content_type_options: nosniff
+
+# Specifies the value of the `Content-Security-Policy` header.
+# See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Security-Policy
+ihatemoney_http_header_content_security_policy: frame-ancestors 'self'
+
+# Specifies the value of the `Permission-Policy` header.
+# See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permission-Policy
+ihatemoney_http_header_content_permission_policy: "{{ 'interest-cohort=()' if ihatemoney_floc_optout_enabled else '' }}"
+
+# Specifies the value of the `Strict-Transport-Security` header.
+# See: https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
+ihatemoney_http_header_strict_transport_security: "max-age=31536000; includeSubDomains{{ '; preload' if ihatemoney_hsts_preload_enabled else '' }}"
+
+# Controls whether to send a "Permissions-Policy interest-cohort=();" header along with all responses
+#
+# Learn more about what it is here:
+# - https://www.eff.org/deeplinks/2021/03/googles-floc-terrible-idea
+# - https://paramdeo.com/blog/opting-your-website-out-of-googles-floc-network
+# - https://amifloced.org/
+#
+# Of course, a better solution is to just stop using browsers (like Chrome), which participate in such tracking practices.
+# See: `ihatemoney_content_permission_policy`
+ihatemoney_floc_optout_enabled: true
+
+# Controls if HSTS preloading is enabled
+#
+# In its strongest and recommended form, the [HSTS policy](https://www.chromium.org/hsts) includes all subdomains, and
+# indicates a willingness to be "preloaded" into browsers:
+# `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload`
+# For more information visit:
+# - https://en.wikipedia.org/wiki/HTTP_Strict_Transport_Security
+# - https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security
+# - https://hstspreload.org/#opt-in
+# See: `ihatemoney_http_header_strict_transport_security`
+ihatemoney_hsts_preload_enabled: false
+
+
