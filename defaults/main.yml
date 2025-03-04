@@ -15,18 +15,13 @@ ihatemoney_path_prefix: /
 
 ihatemoney_version: 6.1.5
 
-ihatemoney_uid: ''
-ihatemoney_gid: ''
+ihatemoney_uid: 0
+ihatemoney_gid: 0
 
 ihatemoney_systemd_required_services_list: "{{ ihatemoney_systemd_required_services_list_default + ihatemoney_systemd_required_services_list_auto + ihatemoney_systemd_required_services_list_custom }}"
 ihatemoney_systemd_required_services_list_default: ['docker.service']
 ihatemoney_systemd_required_services_list_auto: []
 ihatemoney_systemd_required_services_list_custom: []
-
-ihatemoney_systemd_wanted_services_list: "{{ ihatemoney_systemd_wanted_services_list_default + ihatemoney_systemd_wanted_services_list_auto + ihatemoney_systemd_wanted_services_list_custom }}"
-ihatemoney_systemd_wanted_services_list_default: []
-ihatemoney_systemd_wanted_services_list_auto: []
-ihatemoney_systemd_wanted_services_list_custom: []
 
 ihatemoney_base_path: "/{{ ihatemoney_base_path }}/ihatemoney"
 ihatemoney_data_path: "{{ihatemoney_base_path}}/data"
@@ -121,14 +116,7 @@ ihatemoney_container_labels_traefik_additional_response_headers_auto: |
 ihatemoney_container_labels_traefik_additional_response_headers_custom: {}
 
 # A list of middlewares to add to the service.
-# Add your own via the `ihatemoney_container_labels_traefik_http_middlewares_custom` variable.
-ihatemoney_container_labels_traefik_http_middlewares: "{{ ihatemoney_container_labels_traefik_http_middlewares_default + ihatemoney_container_labels_traefik_http_middlewares_auto + ihatemoney_container_labels_traefik_http_middlewares_custom }}"
 
-ihatemoney_container_labels_traefik_http_middlewares_default: {}
-ihatemoney_container_labels_traefik_http_middlewares_auto: []
-ihatemoney_container_labels_traefik_http_middlewares_custom: []
-
-# Controls the ihatemoney environment debug variable
 ihatemoney_environment_variable_ihatemoney_port: 8000
 # Specifies the value of the `X-XSS-Protection` header
 # Stops pages from loading when they detect reflected cross-site scripting (XSS) attacks.
