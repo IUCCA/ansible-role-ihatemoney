@@ -15,8 +15,8 @@ ihatemoney_path_prefix: /
 
 ihatemoney_version: 6.1.5
 
-ihatemoney_uid: 0
-ihatemoney_gid: 0
+ihatemoney_uid: ''
+ihatemoney_gid: ''
 
 ihatemoney_systemd_required_services_list: "{{ ihatemoney_systemd_required_services_list_default + ihatemoney_systemd_required_services_list_auto + ihatemoney_systemd_required_services_list_custom }}"
 ihatemoney_systemd_required_services_list_default: ['docker.service']
