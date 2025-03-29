@@ -1,24 +1,19 @@
 ---
 - name: Ensure ihatemoney paths exist
   ansible.builtin.file:
-    path: "{{ item }}"
+    path: "{{ ihatemoney_base_path }}"
     state: directory
     mode: 0750
     owner: "{{ ihatemoney_uid }}"
     group: "{{ ihatemoney_gid }}"
-  with_items:
-    - "{{ ihatemoney_base_path }}"
-#    - "{{ ihatemoney_data_path }}"
 
 - name: Ensure ihatemoney data paths exist
   ansible.builtin.file:
-    path: "{{ item }}"
+    path: "{{ ihatemoney_data_path }}"
     state: directory
     mode: 0750
     owner: 0
     group: 0
-  with_items:
-    - "{{ ihatemoney_data_path }}"
 
 
 - name: Ensure ihatemoney support files installed
