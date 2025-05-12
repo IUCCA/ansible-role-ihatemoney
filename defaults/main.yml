@@ -1,6 +1,6 @@
 ---
 
-# Project source code URL: https://github.com/IUCCA/ansible-role-ihatemoney
+# Project source code URL: https://github.com/spiral-project/ihatemoney
 
 ihatemoney_enabled: false
 
