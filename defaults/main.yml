@@ -13,7 +13,7 @@ ihatemoney_hostname: ''
 
 ihatemoney_path_prefix: /
 
-ihatemoney_version: 7.0
+ihatemoney_version: 7.0.0
 
 ihatemoney_uid: ''
 ihatemoney_gid: ''
