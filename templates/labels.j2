@@ -38,4 +38,6 @@ traefik.http.routers.{{ ihatemoney_identifier }}.tls.certResolver={{ ihatemoney_
 traefik.http.services.{{ ihatemoney_identifier }}.loadbalancer.server.port={{ ihatemoney_environment_variable_ihatemoney_port }}
 {% endif %}
 
-{{ ihatemoney_container_labels_additional_labels }}
+{% for arg in ihatemoney_container_labels_additional_labels %}
+{{ arg }}
+{% endfor %}
