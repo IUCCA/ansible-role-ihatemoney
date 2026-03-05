@@ -77,11 +77,19 @@ ihatemoney_use_tls: '0'
 ihatemoney_use_ssl: '0'
 ihatemoney_default_from_email: '' # email sender address (default 'localhost')
 
-# ihatemoney_container_labels_traefik_enabled controls whether labels to assist a Traefik reverse-proxy will be attached to the container.
+# ihatemoney_container_labels_additional_labels contains a multiline string with additional labels to add to the container label file.
 # See `../templates/labels.j2` for details.
+# To add your own custom labels, use `ihatemoney_container_labels_additional_labels_custom`
 #
-# To inject your own other container labels, see `ihatemoney_container_labels_additional_labels`.
-ihatemoney_container_labels_additional_labels: ''
+# Example:
+# ihatemoney_container_labels_additional_labels_custom:
+#   - my.label=1
+#   - another.label="here"
+ihatemoney_container_labels_additional_labels: "{{ ihatemoney_container_labels_additional_labels_auto + ihatemoney_container_labels_additional_labels_custom }}"
+ihatemoney_container_labels_additional_labels_auto: []
+ihatemoney_container_labels_additional_labels_custom: []
+
+# ihatemoney_container_labels_traefik_enabled controls whether labels to assist a Traefik reverse-proxy will be attached to the container.
 ihatemoney_container_labels_traefik_enabled: true
 ihatemoney_container_labels_traefik_docker_network: ''
 ihatemoney_container_labels_traefik_hostname: "{{ ihatemoney_hostname }}"
