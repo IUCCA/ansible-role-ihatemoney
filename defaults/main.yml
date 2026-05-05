@@ -180,5 +180,3 @@ ihatemoney_floc_optout_enabled: true
 # - https://hstspreload.org/#opt-in
 # See: `ihatemoney_http_header_strict_transport_security`
 ihatemoney_hsts_preload_enabled: false
-
-
