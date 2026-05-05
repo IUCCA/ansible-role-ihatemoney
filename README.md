@@ -1,3 +1,9 @@
+<!--
+SPDX-FileCopyrightText: 2025 IUCCA
+
+SPDX-License-Identifier: AGPL-3.0-or-later
+-->
+
 # I hate money Ansible role
 
 This is an [Ansible](https://www.ansible.com/) role which installs [I hate money](https://github.com/spiral-project/ihatemoney?tab=readme-ov-file) to run as a [Docker](https://www.docker.com/) container wrapped in a systemd service.
