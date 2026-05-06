@@ -62,7 +62,9 @@ ihatemoney_container_additional_networks_custom: []
 # if you wish to mount your own files into the container.
 # Contains definition objects like this: `{"type": "bind", "src": "/outside", "dst": "/inside", "options": "readonly"}.
 # See the `--mount` documentation for the `docker run` command.
-ihatemoney_container_additional_mounts: []
+ihatemoney_container_additional_volumes: "{{ ihatemoney_container_additional_volumes_auto + ihatemoney_container_additional_volumes_custom }}"
+ihatemoney_container_additional_volumes_auto: []
+ihatemoney_container_additional_volumes_custom: []
 
 # ihatemoney_container_labels_traefik_enabled controls whether labels to assist a Traefik reverse-proxy will be attached to the container.
 # See `../templates/labels.j2` for details.
