@@ -1,5 +1,8 @@
 {#
+SPDX-FileCopyrightText: 2023 Slavi Pantaleev
+SPDX-FileCopyrightText: 2024 Nikita Chernyi
 SPDX-FileCopyrightText: 2025 IUCCA
+SPDX-FileCopyrightText: 2025, 2026 Suguru Hirahara
 
 SPDX-License-Identifier: AGPL-3.0-or-later
 #}
@@ -9,6 +12,9 @@ Description=I hate money ({{ ihatemoney_identifier }})
 {% for service in ihatemoney_systemd_required_services_list %}
 Requires={{ service }}
 After={{ service }}
+{% endfor %}
+{% for service in ihatemoney_systemd_wanted_services_list %}
+Wants={{ service }}
 {% endfor %}
 DefaultDependencies=no
 
