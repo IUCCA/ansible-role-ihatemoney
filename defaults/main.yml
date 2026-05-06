@@ -231,6 +231,9 @@ ihatemoney_use_tls: "0"
 ihatemoney_use_ssl: "0"
 ihatemoney_default_from_email: "" # email sender address (default 'localhost')
 
+# Specify the timezone
+ihatemoney_environment_variables_tz: UTC
+
 ihatemoney_admin_password: ""
 ihatemoney_environment_variable_secret: ""
 ihatemoney_public_project_creation: false
