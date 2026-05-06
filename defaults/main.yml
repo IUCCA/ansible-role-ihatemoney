@@ -14,19 +14,19 @@ ihatemoney_enabled: false
 
 ihatemoney_identifier: ihatemoney
 ihatemoney_base_path: "/{{ ihatemoney_base_path }}/ihatemoney"
-ihatemoney_data_path: "{{ihatemoney_base_path}}/data"
+ihatemoney_data_path: "{{ ihatemoney_base_path }}/data"
 
 # renovate: datasource=docker depName=ihatemoney/ihatemoney versioning=semver
 ihatemoney_version: 7.0.1
 
-ihatemoney_uid: ''
-ihatemoney_gid: ''
+ihatemoney_uid: ""
+ihatemoney_gid: ""
 
 # The scheme used for serving I hate money.
 ihatemoney_scheme: https
 
 # The hostname at which I hate money is served.
-ihatemoney_hostname: ''
+ihatemoney_hostname: ""
 
 # The path at which I hate money is served.
 # This value must either be `/` or not end with a slash (e.g. `/ihatemoney`).
@@ -48,7 +48,7 @@ ihatemoney_container_network_deletion_enabled: true
 # Specify how the container publishes its HTTP port (as defined by `ihatemoney_container_http_port`).
 #
 # Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:2586"), or empty string to not expose.
-ihatemoney_container_http_host_bind_port: ''
+ihatemoney_container_http_host_bind_port: ""
 
 # The port number in the container
 ihatemoney_container_http_port: 8000
@@ -74,7 +74,7 @@ ihatemoney_container_additional_volumes_custom: []
 #
 # To inject your own other container labels, see `ihatemoney_container_labels_additional_labels_custom`.
 ihatemoney_container_labels_traefik_enabled: true
-ihatemoney_container_labels_traefik_docker_network: ''
+ihatemoney_container_labels_traefik_docker_network: ""
 ihatemoney_container_labels_traefik_hostname: "{{ ihatemoney_hostname }}"
 # The path prefix must either be `/` or not end with a slash (e.g. `/ihatemoney`).
 ihatemoney_container_labels_traefik_path_prefix: "{{ ihatemoney_path_prefix }}"
@@ -83,7 +83,7 @@ ihatemoney_container_labels_traefik_rule: "Host(`{{ ihatemoney_container_labels_
 ihatemoney_container_labels_traefik_priority: 0
 ihatemoney_container_labels_traefik_entrypoints: web-secure
 ihatemoney_container_labels_traefik_tls: "{{ ihatemoney_container_labels_traefik_entrypoints != 'web' }}"
-ihatemoney_container_labels_traefik_tls_certResolver: default  # noqa var-naming
+ihatemoney_container_labels_traefik_tls_certResolver: default # noqa var-naming
 ihatemoney_container_labels_traefik_middleware_basic_auth_enabled: false
 # See: https://doc.traefik.io/traefik/reference/routing-configuration/http/middlewares/basicauth/
 ihatemoney_container_labels_traefik_middleware_basic_auth_users: ""
@@ -217,24 +217,24 @@ ihatemoney_container_cleanup_command: |
 
 # Specify database configuration
 ihatemoney_database_type: postgres
-ihatemoney_database_hostname: ''
+ihatemoney_database_hostname: ""
 ihatemoney_database_port: 5432
 ihatemoney_database_name: ihatemoney
-ihatemoney_database_username: ''
-ihatemoney_database_password: ''
+ihatemoney_database_username: ""
+ihatemoney_database_password: ""
 
 # Specify mailer configuration
-ihatemoney_email_host: ''
-ihatemoney_email_port: ''
-ihatemoney_host_user: ''
-ihatemoney_host_password: ''
-ihatemoney_use_tls: '0'
-ihatemoney_use_ssl: '0'
-ihatemoney_default_from_email: '' # email sender address (default 'localhost')
+ihatemoney_email_host: ""
+ihatemoney_email_port: ""
+ihatemoney_host_user: ""
+ihatemoney_host_password: ""
+ihatemoney_use_tls: "0"
+ihatemoney_use_ssl: "0"
+ihatemoney_default_from_email: "" # email sender address (default 'localhost')
 
-ihatemoney_admin_password: ''
-ihatemoney_environment_variable_secret: ''
+ihatemoney_admin_password: ""
+ihatemoney_environment_variable_secret: ""
 ihatemoney_public_project_creation: false
 
 # Additional environment variables.
-ihatemoney_container_additional_environment_variables: ''
+ihatemoney_container_additional_environment_variables: ""
