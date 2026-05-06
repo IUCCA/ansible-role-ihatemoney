@@ -81,6 +81,9 @@ ihatemoney_container_labels_traefik_priority: 0
 ihatemoney_container_labels_traefik_entrypoints: web-secure
 ihatemoney_container_labels_traefik_tls: "{{ ihatemoney_container_labels_traefik_entrypoints != 'web' }}"
 ihatemoney_container_labels_traefik_tls_certResolver: default  # noqa var-naming
+ihatemoney_container_labels_traefik_middleware_basic_auth_enabled: false
+# See: https://doc.traefik.io/traefik/reference/routing-configuration/http/middlewares/basicauth/
+ihatemoney_container_labels_traefik_middleware_basic_auth_users: ""
 
 # Controls which additional headers to attach to all HTTP requests.
 # To add your own custom request headers, use `ihatemoney_container_labels_traefik_additional_response_headers_custom`

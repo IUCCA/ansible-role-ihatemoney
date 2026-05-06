@@ -1,5 +1,7 @@
 {#
+SPDX-FileCopyrightText: 2023 Slavi Pantaleev
 SPDX-FileCopyrightText: 2025 IUCCA
+SPDX-FileCopyrightText: 2025, 2026 Suguru Hirahara
 
 SPDX-License-Identifier: AGPL-3.0-or-later
 #}
@@ -12,6 +14,22 @@ traefik.docker.network={{ ihatemoney_container_labels_traefik_docker_network }}
 {% endif %}
 
 {% set middlewares = [] %}
+
+{% if ihatemoney_container_labels_traefik_middleware_basic_auth_enabled %}
+{% set middlewares = middlewares + [ihatemoney_identifier + '-basic-auth'] %}
+traefik.http.middlewares.{{ ihatemoney_identifier }}-basic-auth.basicauth.users={{ ihatemoney_container_labels_traefik_middleware_basic_auth_users }}
+{% endif %}
+
+{% if ihatemoney_container_labels_traefik_path_prefix != '/' %}
+traefik.http.middlewares.{{ ihatemoney_identifier }}-slashless-redirect.redirectregex.regex=^({{ ihatemoney_container_labels_traefik_path_prefix | quote }})$
+traefik.http.middlewares.{{ ihatemoney_identifier }}-slashless-redirect.redirectregex.replacement=${1}/
+{% set middlewares = middlewares + [ihatemoney_identifier + '-slashless-redirect'] %}
+{% endif %}
+
+{% if ihatemoney_container_labels_traefik_path_prefix != '/' %}
+traefik.http.middlewares.{{ ihatemoney_identifier }}-strip-prefix.stripprefix.prefixes={{ ihatemoney_container_labels_traefik_path_prefix }}
+{% set middlewares = middlewares + [ihatemoney_identifier + '-strip-prefix'] %}
+{% endif %}
 
 {% if ihatemoney_container_labels_traefik_additional_request_headers.keys() | length > 0 %}
 {% for name, value in ihatemoney_container_labels_traefik_additional_request_headers.items() %}
