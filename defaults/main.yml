@@ -42,6 +42,9 @@ ihatemoney_container_image_force_pull: "{{ ihatemoney_container_image.endswith('
 # The base container network. It will be auto-created by this role if it doesn't exist already.
 ihatemoney_container_network: "{{ ihatemoney_identifier }}"
 
+# Control if the container network is deleted on uninstalling.
+ihatemoney_container_network_deletion_enabled: true
+
 # Specify how the container publishes its HTTP port (as defined by `ihatemoney_container_http_port`).
 #
 # Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:2586"), or empty string to not expose.
