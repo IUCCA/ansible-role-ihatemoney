@@ -17,25 +17,26 @@
 
 - name: Fail if required I hate money settings not defined
   ansible.builtin.fail:
-    msg: >
-      You need to define a required configuration setting (`{{ item }}`).
-  when: "vars[item] == ''"
+    msg: >-
+      You need to define a required configuration setting (`{{ item.name }}`).
+  when: "item.when | bool and lookup('vars', item.name, default='') | string | length == 0"
   with_items:
-    - ihatemoney_identifier
-    - ihatemoney_uid
-    - ihatemoney_gid
-    - ihatemoney_hostname
-    - ihatemoney_path_prefix
-    - ihatemoney_container_network
-    - ihatemoney_environment_variable_secret
+    - { "name": "ihatemoney_uid", when: true }
+    - { "name": "ihatemoney_gid", when: true }
+    - { "name": "ihatemoney_hostname", when: true }
+    - { "name": "ihatemoney_path_prefix", when: true }
+    - { "name": "ihatemoney_container_network", when: true }
+    - { "name": "ihatemoney_container_labels_traefik_middleware_basic_auth_users", when: "{{ ihatemoney_container_labels_traefik_middleware_basic_auth_enabled }}" }
+    - { "name": "ihatemoney_environment_variable_secret", when: true }
 
-- when: ihatemoney_container_labels_traefik_enabled | bool
+- name: Run if Traefik is enabled
+  when: ihatemoney_container_labels_traefik_enabled | bool
   block:
-    - name: Fail if required I hate money Traefik settings not defined
+    - name: Fail if Traefik settings required for I hate money are not defined
       ansible.builtin.fail:
         msg: >-
           You need to define a required configuration setting (`{{ item }}`).
-      when: "vars[item] == ''"
+      when: "lookup('vars', item, default='') | string | length == 0"
       with_items:
         - ihatemoney_container_labels_traefik_hostname
         - ihatemoney_container_labels_traefik_path_prefix
