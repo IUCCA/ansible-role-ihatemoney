@@ -34,8 +34,10 @@ ihatemoney_path_prefix: /
 
 ihatemoney_container_image: "{{ ihatemoney_container_image_registry_prefix }}ihatemoney/ihatemoney:{{ ihatemoney_container_image_tag }}"
 ihatemoney_container_image_tag: "{{ ihatemoney_version }}"
+ihatemoney_container_image_registry_prefix: "{{ ihatemoney_container_image_registry_prefix_upstream }}"
+ihatemoney_container_image_registry_prefix_upstream: "{{ ihatemoney_container_image_registry_prefix_upstream_default }}"
+ihatemoney_container_image_registry_prefix_upstream_default: docker.io/
 ihatemoney_container_image_force_pull: "{{ ihatemoney_container_image.endswith(':latest') }}"
-ihatemoney_container_image_registry_prefix: docker.io/
 
 # The base container network. It will be auto-created by this role if it doesn't exist already.
 ihatemoney_container_network: "{{ ihatemoney_identifier }}"
