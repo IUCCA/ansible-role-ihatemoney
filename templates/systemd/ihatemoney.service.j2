@@ -24,23 +24,23 @@ Environment="HOME={{ devture_systemd_docker_base_systemd_unit_home_path }}"
 ExecStartPre={{ devture_systemd_docker_base_host_command_sh }} -c '{{ ihatemoney_container_cleanup_command | trim | replace("\n", " ") }}'
 
 ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
-                --rm \
-                --name={{ ihatemoney_identifier }} \
-                --read-only \
-                --tmpfs=/tmp:rw,noexec,nosuid,size=100m \
-                --log-driver=none \
-                --cap-drop=ALL \
-                {% if ihatemoney_container_http_host_bind_port %}
-                -p {{ ihatemoney_container_http_host_bind_port }}:{{ ihatemoney_container_http_port }} \
-                {% endif %}
-                --label-file={{ ihatemoney_base_path }}/labels \
-                --network={{ ihatemoney_container_network }} \
-                --mount type=bind,src={{ ihatemoney_data_path }},dst=/etc/ihatemoney \
-                --env-file={{ ihatemoney_base_path }}/env \
-                {% if ihatemoney_container_extra_arguments | length > 0 %}
-                {{ ihatemoney_container_extra_arguments | join(' ') }} \
-                {% endif %}
-                {{ ihatemoney_container_image }}
+      --rm \
+      --name={{ ihatemoney_identifier }} \
+      --read-only \
+      --tmpfs=/tmp:rw,noexec,nosuid,size=100m \
+      --log-driver=none \
+      --cap-drop=ALL \
+      {% if ihatemoney_container_http_host_bind_port %}
+      -p {{ ihatemoney_container_http_host_bind_port }}:{{ ihatemoney_container_http_port }} \
+      {% endif %}
+      --label-file={{ ihatemoney_base_path }}/labels \
+      --network={{ ihatemoney_container_network }} \
+      --mount type=bind,src={{ ihatemoney_data_path }},dst=/etc/ihatemoney \
+      --env-file={{ ihatemoney_base_path }}/env \
+      {% if ihatemoney_container_extra_arguments | length > 0 %}
+      {{ ihatemoney_container_extra_arguments | join(' ') }} \
+      {% endif %}
+      {{ ihatemoney_container_image }}
 
 {% for network in ihatemoney_container_additional_networks %}
 ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} network connect {{ network }} {{ ihatemoney_identifier }}
