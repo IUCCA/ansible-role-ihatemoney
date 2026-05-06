@@ -47,6 +47,9 @@ ihatemoney_container_network: "{{ ihatemoney_identifier }}"
 # Takes an "<ip>:<port>" or "<port>" value (e.g. "127.0.0.1:2586"), or empty string to not expose.
 ihatemoney_container_http_host_bind_port: ''
 
+# The port number in the container
+ihatemoney_container_http_port: 8000
+
 # A list of additional container networks that the container would be connected to.
 # The role does not create these networks, so make sure they already exist.
 # Use this to expose this container to another reverse proxy, which runs in a different container network.
@@ -190,8 +193,6 @@ ihatemoney_default_from_email: '' # email sender address (default 'localhost')
 ihatemoney_admin_password: ''
 ihatemoney_environment_variable_secret: ''
 ihatemoney_public_project_creation: false
-
-ihatemoney_environment_variable_ihatemoney_port: 8000
 
 # Additional environment variables.
 ihatemoney_container_additional_environment_variables: ''
