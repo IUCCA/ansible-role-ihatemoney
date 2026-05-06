@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 ---
-- name: Ensure I hate money paths exist
+- name: Ensure I hate money path exists
   ansible.builtin.file:
     path: "{{ ihatemoney_base_path }}"
     state: directory
@@ -11,7 +11,7 @@
     owner: "{{ ihatemoney_uid }}"
     group: "{{ ihatemoney_gid }}"
 
-- name: Ensure I hate money data paths exist
+- name: Ensure I hate money data path exists
   ansible.builtin.file:
     path: "{{ ihatemoney_data_path }}"
     state: directory
