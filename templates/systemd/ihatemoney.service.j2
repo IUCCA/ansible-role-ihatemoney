@@ -26,17 +26,17 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_sh }} -c '{{ ihatemoney
 ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
       --rm \
       --name={{ ihatemoney_identifier }} \
-      --read-only \
-      --tmpfs=/tmp:rw,noexec,nosuid,size=100m \
       --log-driver=none \
       --cap-drop=ALL \
+      --read-only \
+      --network={{ ihatemoney_container_network }} \
       {% if ihatemoney_container_http_host_bind_port %}
       -p {{ ihatemoney_container_http_host_bind_port }}:{{ ihatemoney_container_http_port }} \
       {% endif %}
-      --label-file={{ ihatemoney_base_path }}/labels \
-      --network={{ ihatemoney_container_network }} \
-      --mount type=bind,src={{ ihatemoney_data_path }},dst=/etc/ihatemoney \
       --env-file={{ ihatemoney_base_path }}/env \
+      --label-file={{ ihatemoney_base_path }}/labels \
+      --mount type=bind,src={{ ihatemoney_data_path }},dst=/etc/ihatemoney \
+      --tmpfs=/tmp:rw,noexec,nosuid,size=100m \
       {% if ihatemoney_container_extra_arguments | length > 0 %}
       {{ ihatemoney_container_extra_arguments | join(' ') }} \
       {% endif %}
