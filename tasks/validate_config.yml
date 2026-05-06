@@ -4,7 +4,7 @@
 
 ---
 
-- name: Fail if required ihatemoney settings not defined
+- name: Fail if required I hate money settings not defined
   ansible.builtin.fail:
     msg: >
       You need to define a required configuration setting (`{{ item }}`).
@@ -20,7 +20,7 @@
 
 - when: ihatemoney_container_labels_traefik_enabled | bool
   block:
-    - name: Fail if required ihatemoney Traefik settings not defined
+    - name: Fail if required I hate money Traefik settings not defined
       ansible.builtin.fail:
         msg: >-
           You need to define a required configuration setting (`{{ item }}`).

@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: AGPL-3.0-or-later
 
 ---
-- name: Ensure ihatemoney paths exist
+- name: Ensure I hate money paths exist
   ansible.builtin.file:
     path: "{{ ihatemoney_base_path }}"
     state: directory
@@ -11,7 +11,7 @@
     owner: "{{ ihatemoney_uid }}"
     group: "{{ ihatemoney_gid }}"
 
-- name: Ensure ihatemoney data paths exist
+- name: Ensure I hate money data paths exist
   ansible.builtin.file:
     path: "{{ ihatemoney_data_path }}"
     state: directory
@@ -19,8 +19,7 @@
     owner: 0
     group: 0
 
-
-- name: Ensure ihatemoney support files installed
+- name: Ensure I hate money support files installed
   ansible.builtin.template:
     src: "{{ role_path }}/templates/{{ item }}.j2"
     dest: "{{ ihatemoney_base_path }}/{{ item }}"
@@ -31,7 +30,7 @@
     - env
     - labels
 
-- name: Ensure ihatemoney container image is pulled via community.docker.docker_image
+- name: Ensure I hate money container image is pulled via community.docker.docker_image
   when: devture_systemd_docker_base_container_image_pull_method == 'ansible-module'
   community.docker.docker_image:
     name: "{{ ihatemoney_container_image }}"
@@ -43,7 +42,7 @@
   delay: "{{ devture_playbook_help_container_retries_delay }}"
   until: image_pull_result is not failed
 
-- name: Ensure ihatemoney container image is pulled via command
+- name: Ensure I hate money container image is pulled via command
   when: devture_systemd_docker_base_container_image_pull_method == 'command'
   ansible.builtin.command:
     cmd: "{{ devture_systemd_docker_base_host_command_docker }} pull {{ ihatemoney_container_image }}"
@@ -53,7 +52,7 @@
   until: image_pull_result is not failed
   changed_when: "'Downloaded newer image' in image_pull_result.stdout"
 
-- name: Ensure ihatemoney container network is created via community.docker.docker_network
+- name: Ensure I hate money container network is created via community.docker.docker_network
   when: devture_systemd_docker_base_container_network_creation_method == 'ansible-module'
   community.general.docker_network:
     enable_ipv6: "{{ devture_systemd_docker_base_ipv6_enabled }}"
@@ -61,7 +60,7 @@
     driver: bridge
     driver_options: "{{ devture_systemd_docker_base_container_networks_driver_options }}"
 
-- name: Ensure ihatemoney container network is created via ansible.builtin.command
+- name: Ensure I hate money container network is created via ansible.builtin.command
   when: devture_systemd_docker_base_container_network_creation_method == 'command'
   ansible.builtin.command:
     cmd: >-
@@ -73,7 +72,7 @@
   changed_when: network_creation_result.rc == 0
   failed_when: network_creation_result.rc != 0 and 'already exists' not in network_creation_result.stderr
 
-- name: Ensure ihatemoney systemd installed
+- name: Ensure I hate money systemd installed
   ansible.builtin.template:
     src: "{{ role_path }}/templates/systemd/ihatemoney.service.j2"
     dest: "{{ devture_systemd_docker_base_systemd_path }}/{{ ihatemoney_identifier }}.service"

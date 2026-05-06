@@ -5,7 +5,7 @@ SPDX-License-Identifier: AGPL-3.0-or-later
 #}
 
 [Unit]
-Description=ihatemoney ({{ ihatemoney_identifier }})
+Description=I hate money ({{ ihatemoney_identifier }})
 {% for service in ihatemoney_systemd_required_services_list %}
 Requires={{ service }}
 After={{ service }}
