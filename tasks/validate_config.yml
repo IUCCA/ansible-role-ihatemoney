@@ -1,26 +1,43 @@
+# SPDX-FileCopyrightText: 2023 Slavi Pantaleev
+# SPDX-FileCopyrightText: 2025 IUCCA
+# SPDX-FileCopyrightText: 2025, 2026 Suguru Hirahara
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 ---
-
-- name: Fail if required ihatemoney settings not defined
+- name: (Deprecation) Catch and report renamed settings
   ansible.builtin.fail:
-    msg: >
-      You need to define a required configuration setting (`{{ item }}`).
-  when: "vars[item] == ''"
+    msg: >-
+      Your configuration contains a variable, which now has a different name.
+      Please change your configuration to rename the variable (`{{ item.old }}` -> `{{ item.new }}`).
+  when: "lookup('ansible.builtin.varnames', ('^' + item.old + '$'), wantlist=True) | length > 0"
   with_items:
-    - ihatemoney_identifier
-    - ihatemoney_uid
-    - ihatemoney_gid
-    - ihatemoney_hostname
-    - ihatemoney_path_prefix
-    - ihatemoney_container_network
-    - ihatemoney_environment_variable_secret
+    - { "old": "ihatemoney_environment_variable_ihatemoney_port", "new": "ihatemoney_container_http_port" }
+    - { "old": "ihatemoney_http_header_content_permission_policy", "new": "ihatemoney_http_header_permissions_policy" }
+    - { "old": "ihatemoney_container_image_force_pull", "new": "<removed> (the new community.docker.docker_image_pull module handles this natively)" }
 
-- when: ihatemoney_container_labels_traefik_enabled | bool
+- name: Fail if required I hate money settings not defined
+  ansible.builtin.fail:
+    msg: >-
+      You need to define a required configuration setting (`{{ item.name }}`).
+  when: "item.when | bool and lookup('vars', item.name, default='') | string | length == 0"
+  with_items:
+    - { "name": "ihatemoney_uid", when: true }
+    - { "name": "ihatemoney_gid", when: true }
+    - { "name": "ihatemoney_hostname", when: true }
+    - { "name": "ihatemoney_path_prefix", when: true }
+    - { "name": "ihatemoney_container_network", when: true }
+    - { "name": "ihatemoney_container_labels_traefik_middleware_basic_auth_users", when: "{{ ihatemoney_container_labels_traefik_middleware_basic_auth_enabled }}" }
+    - { "name": "ihatemoney_environment_variable_secret", when: true }
+
+- name: Run if Traefik is enabled
+  when: ihatemoney_container_labels_traefik_enabled | bool
   block:
-    - name: Fail if required ihatemoney Traefik settings not defined
+    - name: Fail if Traefik settings required for I hate money are not defined
       ansible.builtin.fail:
         msg: >-
           You need to define a required configuration setting (`{{ item }}`).
-      when: "vars[item] == ''"
+      when: "lookup('vars', item, default='') | string | length == 0"
       with_items:
         - ihatemoney_container_labels_traefik_hostname
         - ihatemoney_container_labels_traefik_path_prefix

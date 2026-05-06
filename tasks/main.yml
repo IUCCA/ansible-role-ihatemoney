@@ -1,20 +1,28 @@
+# SPDX-FileCopyrightText: 2023 Slavi Pantaleev
+# SPDX-FileCopyrightText: 2025 IUCCA
+# SPDX-FileCopyrightText: 2025, 2026 Suguru Hirahara
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
 ---
-
-- block:
-    - when: ihatemoney_enabled | bool
-      ansible.builtin.include_tasks: "{{ role_path }}/tasks/validate_config.yml"
-
-    - when: ihatemoney_enabled | bool
-      ansible.builtin.include_tasks: "{{ role_path }}/tasks/install.yml"
+- name: Perform I hate money installation tasks
+  when: ihatemoney_enabled | bool
   tags:
     - setup-all
     - setup-ihatemoney
     - install-all
     - install-ihatemoney
+  block:
+    - name: Validate I hate money configuration
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/validate_config.yml"
+    - name: Install I hate money
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/install.yml"
 
-- block:
-    - when: not ihatemoney_enabled | bool
-      ansible.builtin.include_tasks: "{{ role_path }}/tasks/uninstall.yml"
+- name: Perform I hate money uninstallation tasks
+  when: not ihatemoney_enabled | bool
   tags:
     - setup-all
     - setup-ihatemoney
+  block:
+    - name: Uninstall I hate money
+      ansible.builtin.include_tasks: "{{ role_path }}/tasks/uninstall.yml"

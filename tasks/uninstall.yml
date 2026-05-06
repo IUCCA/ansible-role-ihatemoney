@@ -1,29 +1,85 @@
----
+# SPDX-FileCopyrightText: 2023 Slavi Pantaleev
+# SPDX-FileCopyrightText: 2025 IUCCA
+# SPDX-FileCopyrightText: 2025, 2026 Suguru Hirahara
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
 
-- name: Check existence of ihatemoney systemd service
+---
+- name: Check existence of I hate money systemd service
   ansible.builtin.stat:
     path: "{{ devture_systemd_docker_base_systemd_path }}/{{ ihatemoney_identifier }}.service"
   register: ihatemoney_service_stat
 
-- when: ihatemoney_service_stat.stat.exists | bool
+- name: Uninstall I hate money systemd services and files
+  when: ihatemoney_service_stat.stat.exists | bool
   block:
-    - name: Ensure ihatemoney systemd service is stopped
+    - name: Ensure I hate money systemd service is stopped
       ansible.builtin.service:
-        name: "{{ item }}"
+        name: "{{ ihatemoney_identifier }}"
         state: stopped
         enabled: false
         daemon_reload: true
-      with_items:
-        - "{{ ihatemoney_identifier }}.service"
 
-    - name: Ensure ihatemoney systemd service does not exist
+    - name: Ensure I hate money systemd service does not exist
       ansible.builtin.file:
-        path: "{{ item }}"
+        path: "{{ devture_systemd_docker_base_systemd_path }}/{{ ihatemoney_identifier }}.service"
+        state: absent
+
+    - name: Ensure I hate money support files do not exist
+      ansible.builtin.file:
+        path: "{{ ihatemoney_base_path }}/{{ item }}"
         state: absent
       with_items:
-        - "{{ devture_systemd_docker_base_systemd_path }}/{{ ihatemoney_identifier }}.service"
+        - env
+        - labels
 
-    - name: Ensure ihatemoney path doesn't exist
-      ansible.builtin.file:
-        path: "{{ ihatemoney_base_path }}"
-        state: absent
+    - name: Ensure I hate money local data path does not exist if empty
+      ansible.builtin.command:
+        cmd: "rmdir {{ ihatemoney_data_path }}"
+      register: ihatemoney_data_path_deletion_result
+      changed_when: ihatemoney_data_path_deletion_result.rc == 0
+      failed_when: false
+
+    - name: Ensure I hate money base path does not exist if empty
+      ansible.builtin.command:
+        cmd: "rmdir {{ ihatemoney_base_path }}"
+      register: ihatemoney_base_path_deletion_result
+      changed_when: ihatemoney_base_path_deletion_result.rc == 0
+      failed_when: false
+
+    - name: Ensure I hate money container network does not exist
+      when: ihatemoney_container_network_deletion_enabled
+      block:
+        - name: Ensure I hate money container network does not exist via community.docker.docker_network
+          when: devture_systemd_docker_base_container_network_creation_method == 'ansible-module'
+          community.docker.docker_network:
+            name: "{{ ihatemoney_container_network }}"
+            state: absent
+          register: ihatemoney_network_deletion_result
+
+        - name: Ensure I hate money container network does not exist via ansible.builtin.command
+          when: devture_systemd_docker_base_container_network_creation_method == 'command'
+          ansible.builtin.command:
+            cmd: >-
+              {{ devture_systemd_docker_base_host_command_docker }} network rm
+              {{ ihatemoney_container_network }}
+          register: ihatemoney_network_deletion_result
+          changed_when: ihatemoney_container_network in ihatemoney_network_deletion_result.stdout
+
+- name: Check existence of I hate money local data path
+  ansible.builtin.stat:
+    path: "{{ ihatemoney_data_path }}"
+  register: ihatemoney_data_path_stat
+
+# We just want to notify the user. Deleting data is too destructive.
+- name: Inject the message about the remaining I hate money local data path
+  when: ihatemoney_data_path_stat.stat.exists | bool
+  ansible.builtin.set_fact:
+    devture_playbook_runtime_messages_list: |
+      {{
+        devture_playbook_runtime_messages_list | default([])
+        +
+        [
+          "Note: As the local I hate money instance has been removed, some old data remains in `" + ihatemoney_data_path + "`. Feel free to delete it."
+        ]
+      }}
