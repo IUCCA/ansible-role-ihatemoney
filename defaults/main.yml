@@ -77,7 +77,6 @@ ihatemoney_container_labels_traefik_docker_network: ""
 ihatemoney_container_labels_traefik_hostname: "{{ ihatemoney_hostname }}"
 # The path prefix must either be `/` or not end with a slash (e.g. `/ihatemoney`).
 ihatemoney_container_labels_traefik_path_prefix: "{{ ihatemoney_path_prefix }}"
-# Controls whether `/.well-known/{carddav,caldav}` will be redirected to `/remote.php/dav/`
 ihatemoney_container_labels_traefik_rule: "Host(`{{ ihatemoney_container_labels_traefik_hostname }}`){% if ihatemoney_container_labels_traefik_path_prefix != '/' %} && PathPrefix(`{{ ihatemoney_container_labels_traefik_path_prefix | quote }}`){% endif %}"
 ihatemoney_container_labels_traefik_priority: 0
 ihatemoney_container_labels_traefik_entrypoints: web-secure
