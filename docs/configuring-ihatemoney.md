@@ -29,9 +29,9 @@ See the project's [documentation](https://ihatemoney.readthedocs.io/en/latest/) 
 
 ## Prerequisites
 
-To run I hate money it is necessary to prepare a database. You can use [Postgres](https://www.postgresql.org/) or [SQLite](https://www.sqlite.org/). The SQLite database file will be automatically created by the service if it is enabled.
+To run an I hate money instance it is necessary to prepare a database. You can use a [MySQL](https://www.mysql.com/) compatible database server, [Postgres](https://www.postgresql.org/), or [SQLite](https://www.sqlite.org/). The SQLite database file will be automatically created by the service if it is enabled.
 
-If you are looking for an Ansible role for Postgres, you can check out [this role (ansible-role-postgres)](https://github.com/mother-of-all-self-hosting/ansible-role-postgres) maintained by the [Mother-of-All-Self-Hosting (MASH)](https://github.com/mother-of-all-self-hosting) team.
+If you are looking for Ansible roles for a MySQL compatible server or Postgres, you can check out [ansible-role-mariadb](https://github.com/mother-of-all-self-hosting/ansible-role-mariadb) and [ansible-role-postgres](https://github.com/mother-of-all-self-hosting/ansible-role-postgres), both of which are maintained by the [Mother-of-All-Self-Hosting (MASH)](https://github.com/mother-of-all-self-hosting) team.
 
 ## Adjusting the playbook configuration
 
@@ -77,29 +77,32 @@ To use SQLite, add the following configuration to your `vars.yml` file:
 ihatemoney_database_type: sqlite
 ```
 
-The SQLite database is stored in the directory specified with `ihatemoney_data_path`.
+Set `mysql` to use a MySQL compatible database. The SQLite database is stored in the directory specified with `ihatemoney_data_path`.
 
 For other settings, check variables such as `ihatemoney_database_*` on [`defaults/main.yml`](../defaults/main.yml).
 
-#### Configuring connection to database server
+#### Configuring connection to the database server (optional)
 
-By default the role is configured to establish connection with the Postgres server via the Unix socket. You can mount the Unix socket by adding the following configuration to your `vars.yml` file:
+By default the role is configured to establish connection with the database server via the Unix socket. You can mount the Unix socket by adding the following configuration to your `vars.yml` file:
 
 ```yaml
+# Specify the path to the MySQL compatible server's Unix socket path on the host (bind-mount source)
+ihatemoney_database_mysql_socket_path_host: ""
+
 # Specify the path to the Postgres Unix socket path on the host (bind-mount source)
-ihatemoney_database_socket_path_host: ""
+ihatemoney_database_postgres_socket_path_host: ""
 ```
 
-Setting it enables to connect to the Postgres server via Unix socket mounted in the container at `/run-postgres/.s.PGSQL.5432`.
+Setting it enables to connect to the database server via Unix socket mounted in the container.
 
 If TCP connection is preferred, connection via the Unix socket can be disabled by adding the following configuration to your `vars.yml` file:
 
 ```yaml
-# Disable the connection to Postgres server via a Unix socket
-ihatemoney_database_socket_enabled: false
+# Disable the connection to the MySQL compatible server via a Unix socket
+ihatemoney_database_mysql_socket_enabled: false
 
-ihatemoney_database_hostname: YOUR_POSTGRES_SERVER_HOSTNAME_HERE
-ihatemoney_database_port: 5432
+# Disable the connection to the Postgres server via a Unix socket
+ihatemoney_database_postgres_socket_enabled: false
 ```
 
 ### Control project creation access (optional)

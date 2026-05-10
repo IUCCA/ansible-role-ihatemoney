@@ -1,5 +1,6 @@
 # SPDX-FileCopyrightText: 2023, 2024 Nikita Chernyi
 # SPDX-FileCopyrightText: 2023-2025 Slavi Pantaleev
+# SPDX-FileCopyrightText: 2024 Julian-Samuel Gebühr
 # SPDX-FileCopyrightText: 2024 Sergio Durigan Junior
 # SPDX-FileCopyrightText: 2025 IUCCA
 # SPDX-FileCopyrightText: 2025 MASH project contributors
@@ -220,36 +221,57 @@ ihatemoney_container_cleanup_command: |
 ########################################################################
 
 # Specify a database driver to use
-# Valid values: postgres, sqlite
+# Valid values: mysql, postgres, sqlite
 ihatemoney_database_type: postgres
 
 # Specify database configuration
-ihatemoney_database_hostname: ""
-ihatemoney_database_port: 5432
-ihatemoney_database_username: ihatemoney
-ihatemoney_database_password: ""
+ihatemoney_database_mysql_hostname: ""
+ihatemoney_database_mysql_port: 3306
+ihatemoney_database_mysql_username: ihatemoney
+ihatemoney_database_mysql_password: ""
+ihatemoney_database_postgres_hostname: ""
+ihatemoney_database_postgres_port: 5432
+ihatemoney_database_postgres_username: ihatemoney
+ihatemoney_database_postgres_password: ""
 # Specify SSL mode for Postgres database server
 # By default, we expect a local container (without SSL), so attempting SSL connections is not necessary.
 # Valid values: see https://www.postgresql.org/docs/11/libpq-ssl.html#LIBPQ-SSL-SSLMODE-STATEMENTS
-ihatemoney_database_sslmode: disable
+ihatemoney_database_postgres_sslmode: disable
 ihatemoney_database_name: ihatemoney
 
-# Control if the database connection to Postgres is made via a Unix socket
-ihatemoney_database_socket_enabled: true
+# Control if the connection to MySQL is made via a Unix socket
+ihatemoney_database_mysql_socket_enabled: true
 
-# Specify the path to the Postgres Unix socket path inside the I hate money container
-ihatemoney_database_socket_path_container: /run-postgres
+# Specify the path to the MySQL Unix socket path on the host (bind-mount source)
+ihatemoney_database_mysql_socket_path_host: ""
+
+# Specify the path to the MySQL Unix socket path inside the ihatemoney container
+ihatemoney_database_mysql_socket_path_container: /run-mysqld
+
+# Control if the connection to Postgres is made via a Unix socket
+ihatemoney_database_postgres_socket_enabled: true
 
 # Specify the path to the Postgres Unix socket path on the host (bind-mount source)
-ihatemoney_database_socket_path_host: ""
+ihatemoney_database_postgres_socket_path_host: ""
+
+# Specify the path to the Postgres Unix socket path inside the ihatemoney container
+ihatemoney_database_postgres_socket_path_container: /run-postgres
 
 # NOTE: sqlalchemy expects the dialect to be one on https://docs.sqlalchemy.org/en/21/core/engines.html#database-urls
-ihatemoney_environment_variables_sqlalchemy_database_uri_postgres: |-
-  postgresql://{{ ihatemoney_database_username }}:{{ ihatemoney_database_password }}@
-  {%- if ihatemoney_database_socket_enabled -%}
-  localhost/{{ ihatemoney_database_name }}?host={{ ihatemoney_database_socket_path_container }}&client_encoding=utf8
+ihatemoney_environment_variables_sqlalchemy_database_uri_mysql: |-
+  mysql+pymysql://{{ ihatemoney_database_mysql_username }}:{{ ihatemoney_database_mysql_password }}@
+  {%- if ihatemoney_database_mysql_socket_enabled -%}
+  localhost/{{ ihatemoney_database_name }}?unix_socket={{ ihatemoney_database_mysql_socket_path_container + '/mysqld.sock' }}
   {%- else -%}
-  {{ ihatemoney_database_hostname }}:{{ ihatemoney_database_port }}/{{ ihatemoney_database_name }}?sslmode={{ ihatemoney_database_sslmode }}&client_encoding=utf8
+  {{ ihatemoney_database_mysql_hostname }}:{{ ihatemoney_database_mysql_port }}/{{ ihatemoney_database_name }}
+  {%- endif -%}
+
+ihatemoney_environment_variables_sqlalchemy_database_uri_postgres: |-
+  postgresql://{{ ihatemoney_database_postgres_username }}:{{ ihatemoney_database_postgres_password }}@
+  {%- if ihatemoney_database_postgres_socket_enabled -%}
+  localhost/{{ ihatemoney_database_postgres_name }}?host={{ ihatemoney_database_postgres_socket_path_container }}&client_encoding=utf8
+  {%- else -%}
+  {{ ihatemoney_database_postgres_hostname }}:{{ ihatemoney_database_postgres_port }}/{{ ihatemoney_database_postgres_name }}?sslmode={{ ihatemoney_database_postgres_sslmode }}&client_encoding=utf8
   {%- endif -%}
 
 ########################################################################
