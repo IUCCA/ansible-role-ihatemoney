@@ -36,8 +36,11 @@ ExecStartPre={{ devture_systemd_docker_base_host_command_docker }} create \
       --env-file={{ ihatemoney_base_path }}/env \
       --label-file={{ ihatemoney_base_path }}/labels \
       --mount type=bind,src={{ ihatemoney_data_path }},dst=/etc/ihatemoney \
-      {% if ihatemoney_database_type == 'postgres' and ihatemoney_database_socket_enabled and ihatemoney_database_socket_path_host != '' %}
-      --mount type=bind,src={{ ihatemoney_database_socket_path_host }},dst={{ ihatemoney_database_socket_path_container }} \
+      {% if ihatemoney_database_type == 'mysql' and ihatemoney_database_mysql_socket_enabled and ihatemoney_database_mysql_socket_path_host != '' %}
+      --mount type=bind,src={{ ihatemoney_database_mysql_socket_path_host }},dst={{ ihatemoney_database_mysql_socket_path_container }} \
+      {% endif %}
+      {% if ihatemoney_database_type == 'postgres' and ihatemoney_database_postgres_socket_enabled and ihatemoney_database_postgres_socket_path_host != '' %}
+      --mount type=bind,src={{ ihatemoney_database_postgres_socket_path_host }},dst={{ ihatemoney_database_postgres_socket_path_container }} \
       {% endif %}
       {% for volume in ihatemoney_container_additional_volumes %}
       --mount type={{ volume.type | default('bind' if '/' in volume.src else 'volume') }},src={{ volume.src }},dst={{ volume.dst }}{{ (',' + volume.options) if volume.options | default('') else '' }} \
