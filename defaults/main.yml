@@ -11,7 +11,7 @@
 ---
 # Project source code URL: https://github.com/spiral-project/ihatemoney
 
-ihatemoney_enabled: false
+ihatemoney_enabled: true
 
 ihatemoney_identifier: ihatemoney
 ihatemoney_base_path: "/{{ ihatemoney_identifier }}"
