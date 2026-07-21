@@ -49,6 +49,10 @@ Currently these testing scenarios are available:
 
 Tests a standard I hate money installation.
 
+### `mariadb`
+
+Tests a standard I hate money installation with the MariaDB database.
+
 ### `postgres`
 
 Tests a standard I hate money installation with the Postgres database.
