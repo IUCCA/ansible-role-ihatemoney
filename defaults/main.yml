@@ -14,7 +14,7 @@
 ihatemoney_enabled: false
 
 ihatemoney_identifier: ihatemoney
-ihatemoney_base_path: "/{{ ihatemoney_base_path }}/ihatemoney"
+ihatemoney_base_path: "/{{ ihatemoney_identifier }}"
 ihatemoney_data_path: "{{ ihatemoney_base_path }}/data"
 
 # renovate: datasource=docker depName=ihatemoney/ihatemoney versioning=semver
