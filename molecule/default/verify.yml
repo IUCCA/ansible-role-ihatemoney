@@ -1,0 +1,53 @@
+# SPDX-FileCopyrightText: 2026 Suguru Hirahara
+# SPDX-FileCopyrightText: 2026 spatterlight
+#
+# SPDX-License-Identifier: AGPL-3.0-or-later
+
+---
+- name: Verify I hate money systemd service
+  hosts: all
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Wait for I hate money service to become active (up to 180s)
+      ansible.builtin.systemd:
+        name: ihatemoney.service
+      register: ihatemoney_service
+      until: ihatemoney_service.status.ActiveState == 'active'
+      retries: 36
+      delay: 5
+
+    - name: Assert I hate money service is active
+      ansible.builtin.assert:
+        that: ihatemoney_service.status.ActiveState == 'active'
+        fail_msg: "ihatemoney.service not active ({{ ihatemoney_service.status.ActiveState }})"
+        success_msg: "ihatemoney.service is active"
+
+    - name: Retrieve I hate money service log for debugging
+      when: ihatemoney_debug_service_enabled | bool
+      ansible.builtin.command:
+        cmd: journalctl -xeu ihatemoney.service
+      changed_when: false
+
+    - name: Wait for I hate money HTTP endpoint to respond (up to 10m)
+      ansible.builtin.uri:
+        url: "http://localhost:8000/"
+        method: GET
+        status_code: [200, 302]
+        follow_redirects: none
+      register: ihatemoney_endpoint
+      until: ihatemoney_endpoint.status in [200, 302]
+      retries: 120
+      delay: 5
+
+    - name: Assert I hate money HTTP endpoint responds
+      ansible.builtin.assert:
+        that: ihatemoney_endpoint.status in [200, 302]
+        fail_msg: "I hate money did not respond as expected ({{ ihatemoney_endpoint.status | default('no response') }})"
+        success_msg: "I hate money responded with {{ ihatemoney_endpoint.status }}"
+
+    - name: Show I hate money systemd service status summary
+      ansible.builtin.debug:
+        msg:
+          - "I hate money systemd: {{ ihatemoney_service.status.ActiveState }}"
+          - "I hate money HTTP: {{ ihatemoney_endpoint.status }}"

@@ -11,10 +11,10 @@
 ---
 # Project source code URL: https://github.com/spiral-project/ihatemoney
 
-ihatemoney_enabled: false
+ihatemoney_enabled: true
 
 ihatemoney_identifier: ihatemoney
-ihatemoney_base_path: "/{{ ihatemoney_base_path }}/ihatemoney"
+ihatemoney_base_path: "/{{ ihatemoney_identifier }}"
 ihatemoney_data_path: "{{ ihatemoney_base_path }}/data"
 
 # renovate: datasource=docker depName=ihatemoney/ihatemoney versioning=semver
@@ -269,9 +269,9 @@ ihatemoney_environment_variables_sqlalchemy_database_uri_mysql: |-
 ihatemoney_environment_variables_sqlalchemy_database_uri_postgres: |-
   postgresql://{{ ihatemoney_database_postgres_username }}:{{ ihatemoney_database_postgres_password }}@
   {%- if ihatemoney_database_postgres_socket_enabled -%}
-  localhost/{{ ihatemoney_database_postgres_name }}?host={{ ihatemoney_database_postgres_socket_path_container }}&client_encoding=utf8
+  localhost/{{ ihatemoney_database_name }}?host={{ ihatemoney_database_postgres_socket_path_container }}&client_encoding=utf8
   {%- else -%}
-  {{ ihatemoney_database_postgres_hostname }}:{{ ihatemoney_database_postgres_port }}/{{ ihatemoney_database_postgres_name }}?sslmode={{ ihatemoney_database_postgres_sslmode }}&client_encoding=utf8
+  {{ ihatemoney_database_postgres_hostname }}:{{ ihatemoney_database_postgres_port }}/{{ ihatemoney_database_name }}?sslmode={{ ihatemoney_database_postgres_sslmode }}&client_encoding=utf8
   {%- endif -%}
 
 ########################################################################
