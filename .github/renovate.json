@@ -5,6 +5,6 @@
     "A bumped image would therefore rewrite a live schema, forward-only, before anyone looked at the update; Molecule installs from scratch and structurally cannot see that risk."
   ],
   "extends": [
-    "github>mother-of-all-self-hosting/renovate-config#v1.0.0"
+    "github>mother-of-all-self-hosting/renovate-config#v1.1.0"
   ]
 }
