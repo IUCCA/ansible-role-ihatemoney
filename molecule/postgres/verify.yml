@@ -24,7 +24,7 @@
     - name: Load the role defaults
       ansible.builtin.include_vars:
         file: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
-        name: ihatemoney_role_defaults
+        name: ihatemoney_defaults
 
     # `Restart=always` means a crash-looping container still shows up as
     # `active` here, so this is a precondition for the checks below rather than
@@ -90,7 +90,7 @@
     - name: Assert that the role's configuration reached the container
       vars:
         ihatemoney_cfg_lines: "{{ (ihatemoney_cfg.content | b64decode).splitlines() }}"
-        ihatemoney_molecule_socket_path: "{{ ihatemoney_role_defaults.ihatemoney_database_postgres_socket_path_container }}"
+        ihatemoney_molecule_socket_path: "{{ ihatemoney_defaults.ihatemoney_database_postgres_socket_path_container }}"
       ansible.builtin.assert:
         that: item in ihatemoney_cfg_lines
         fail_msg: "The generated configuration has no `{{ item }}` line"

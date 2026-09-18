@@ -24,7 +24,7 @@
     - name: Load the role defaults
       ansible.builtin.include_vars:
         file: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
-        name: ihatemoney_role_defaults
+        name: ihatemoney_defaults
 
     # `Restart=always` means a crash-looping container still shows up as
     # `active` here, so this is a precondition for the checks below rather than
