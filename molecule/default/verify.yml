@@ -242,6 +242,6 @@
       ansible.builtin.debug:
         msg:
           - "I hate money systemd: {{ ihatemoney_service.status.ActiveState }}"
-          - "I hate money HTTP {{ ihatemoney_endpoint.status }} at {{ ihatemoney_molecule_base_url }}/"
           - "I hate money version: {{ ihatemoney_reported_version.stdout | trim }}"
+          - "I hate money HTTP {{ ihatemoney_endpoint.status }} at {{ ihatemoney_molecule_base_url }}/"
           - "I hate money database: sqlite at {{ ihatemoney_molecule_data_path }}/ihatemoney.db"
