@@ -17,6 +17,10 @@
     ihatemoney_molecule_base_url: >-
       http://{{ ihatemoney_container_http_host_bind_port }}{{ '' if ihatemoney_path_prefix == '/' else ihatemoney_path_prefix }}
 
+    ihatemoney_verify_units:
+      - ihatemoney.service
+      - postgres.service
+
   tasks:
     - name: Verify that I hate money works
       block:
@@ -28,13 +32,14 @@
             file: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
             name: ihatemoney_defaults
 
-        - name: Wait for the I hate money systemd service to become active (up to 180s)
+        - name: Wait for the I hate money systemd services to become active (up to 180s each)
           ansible.builtin.systemd_service:
-            name: ihatemoney.service
-          register: ihatemoney_service
-          until: ihatemoney_service.status.ActiveState == 'active'
+            name: "{{ item }}"
+          register: ihatemoney_services
+          until: ihatemoney_services.status.ActiveState == 'active'
           retries: 36
           delay: 5
+          loop: "{{ ihatemoney_verify_units }}"
           # So that giving up is reported by the assertion below rather than as a
           # wall of systemd unit properties.
           failed_when: false
@@ -42,17 +47,20 @@
         # `Restart=always` in the systemd unit means that even a container which crashes
         # and gets restarted reads as active here, so this is a precondition rather than
         # a result.
-        - name: Assert the I hate money systemd service is active
+        - name: Assert the I hate money systemd services are active
           ansible.builtin.assert:
-            that: ihatemoney_service.status.ActiveState == 'active'
-            fail_msg: "ihatemoney.service is not active ({{ ihatemoney_service.status.ActiveState }})"
-            success_msg: "ihatemoney.service is active"
+            that: ihatemoney_services.results | map(attribute='status.ActiveState') | unique | list == ['active']
+            fail_msg: >-
+              Not every service is active:
+              {{ dict(ihatemoney_verify_units | zip(ihatemoney_services.results | map(attribute='status.ActiveState'))) }}
+            success_msg: "Every systemd service is active"
 
-        - name: Retrieve the I hate money systemd service log for debugging
+        - name: Retrieve the I hate money systemd services log for debugging
           when: ihatemoney_debug_service_enabled | bool
           ansible.builtin.command:
-            cmd: journalctl --no-pager --output=cat --unit=ihatemoney.service
+            cmd: "journalctl --no-pager --output=cat --unit={{ item }}"
           changed_when: false
+          loop: "{{ ihatemoney_verify_units }}"
 
         # The image runs its Alembic migrations while the WSGI application is being
         # imported, so a database it cannot reach makes the gunicorn worker fail to
@@ -240,7 +248,7 @@
         - name: Show the I hate money verification summary
           ansible.builtin.debug:
             msg:
-              - "I hate money systemd: {{ ihatemoney_service.status.ActiveState }}"
+              - "I hate money systemd: {% for unit, state in ihatemoney_verify_units | zip(ihatemoney_services.results | map(attribute='status.ActiveState')) %}{{ unit }} ({{ state }}){% if not loop.last %}, {% endif %}{% endfor %}"
               - "I hate money version: {{ ihatemoney_reported_version.stdout | trim }}"
               - "I hate money HTTP {{ ihatemoney_endpoint.status }} at {{ ihatemoney_molecule_base_url }}/"
               - "I hate money database: postgres, `{{ ihatemoney_database_name }}`"
