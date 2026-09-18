@@ -20,230 +20,230 @@
   tasks:
     - name: Verify that I hate money works
       block:
-    # The role is not included in this playbook, so its defaults are not in
-    # scope. Reading defaults/main.yml directly ties the version assertion
-    # below.
-    - name: Load the role defaults
-      ansible.builtin.include_vars:
-        file: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
-        name: ihatemoney_defaults
+        # The role is not included in this playbook, so its defaults are not in
+        # scope. Reading defaults/main.yml directly ties the version assertion
+        # below.
+        - name: Load the role defaults
+          ansible.builtin.include_vars:
+            file: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
+            name: ihatemoney_defaults
 
-    - name: Wait for the I hate money systemd service to become active (up to 180s)
-      ansible.builtin.systemd_service:
-        name: ihatemoney.service
-      register: ihatemoney_service
-      until: ihatemoney_service.status.ActiveState == 'active'
-      retries: 36
-      delay: 5
-      # So that giving up is reported by the assertion below rather than as a
-      # wall of systemd unit properties.
-      failed_when: false
+        - name: Wait for the I hate money systemd service to become active (up to 180s)
+          ansible.builtin.systemd_service:
+            name: ihatemoney.service
+          register: ihatemoney_service
+          until: ihatemoney_service.status.ActiveState == 'active'
+          retries: 36
+          delay: 5
+          # So that giving up is reported by the assertion below rather than as a
+          # wall of systemd unit properties.
+          failed_when: false
 
-    # `Restart=always` in the systemd unit means that even a container which crashes
-    # and gets restarted reads as active here, so this is a precondition rather than
-    # a result.
-    - name: Assert the I hate money systemd service is active
-      ansible.builtin.assert:
-        that: ihatemoney_service.status.ActiveState == 'active'
-        fail_msg: "ihatemoney.service is not active ({{ ihatemoney_service.status.ActiveState }})"
-        success_msg: "ihatemoney.service is active"
+        # `Restart=always` in the systemd unit means that even a container which crashes
+        # and gets restarted reads as active here, so this is a precondition rather than
+        # a result.
+        - name: Assert the I hate money systemd service is active
+          ansible.builtin.assert:
+            that: ihatemoney_service.status.ActiveState == 'active'
+            fail_msg: "ihatemoney.service is not active ({{ ihatemoney_service.status.ActiveState }})"
+            success_msg: "ihatemoney.service is active"
 
-    - name: Retrieve the I hate money systemd service log for debugging
-      when: ihatemoney_debug_service_enabled | bool
-      ansible.builtin.command:
-        cmd: journalctl --no-pager --output=cat --unit=ihatemoney.service
-      changed_when: false
+        - name: Retrieve the I hate money systemd service log for debugging
+          when: ihatemoney_debug_service_enabled | bool
+          ansible.builtin.command:
+            cmd: journalctl --no-pager --output=cat --unit=ihatemoney.service
+          changed_when: false
 
-    # The image runs its Alembic migrations while the WSGI application is being
-    # imported, so a database it cannot reach makes the gunicorn worker fail to
-    # boot and the container exit. A page here means Postgres was reached - but
-    # not that it was Postgres rather than the SQLite fallback, which is what
-    # the queries further down settle.
-    - name: Wait for the I hate money HTTP endpoint to respond (up to 180s)
-      ansible.builtin.uri:
-        url: "{{ ihatemoney_molecule_base_url }}/"
-        method: GET
-        status_code: 200
-        follow_redirects: none
-        return_content: true
-      register: ihatemoney_endpoint
-      until: ihatemoney_endpoint.status == 200
-      retries: 36
-      delay: 5
-      failed_when: false
+        # The image runs its Alembic migrations while the WSGI application is being
+        # imported, so a database it cannot reach makes the gunicorn worker fail to
+        # boot and the container exit. A page here means Postgres was reached - but
+        # not that it was Postgres rather than the SQLite fallback, which is what
+        # the queries further down settle.
+        - name: Wait for the I hate money HTTP endpoint to respond (up to 180s)
+          ansible.builtin.uri:
+            url: "{{ ihatemoney_molecule_base_url }}/"
+            method: GET
+            status_code: 200
+            follow_redirects: none
+            return_content: true
+          register: ihatemoney_endpoint
+          until: ihatemoney_endpoint.status == 200
+          retries: 36
+          delay: 5
+          failed_when: false
 
-    - name: Assert that I hate money answers on the port the role configured
-      ansible.builtin.assert:
-        that:
-          - ihatemoney_endpoint.status == 200
-          - "'I Hate Money' in ihatemoney_endpoint.content"
-        fail_msg: >-
-          Nothing recognizable as I hate money answered at {{ ihatemoney_molecule_base_url }}/
-          (status {{ ihatemoney_endpoint.status | default('none') }})
-        success_msg: "I hate money answers at {{ ihatemoney_molecule_base_url }}/"
+        - name: Assert that I hate money answers on the port the role configured
+          ansible.builtin.assert:
+            that:
+              - ihatemoney_endpoint.status == 200
+              - "'I Hate Money' in ihatemoney_endpoint.content"
+            fail_msg: >-
+              Nothing recognizable as I hate money answered at {{ ihatemoney_molecule_base_url }}/
+              (status {{ ihatemoney_endpoint.status | default('none') }})
+            success_msg: "I hate money answers at {{ ihatemoney_molecule_base_url }}/"
 
-    # The container's entrypoint turns the role's env file into this Python
-    # configuration file. Reading it back is how the env file is checked to have
-    # arrived, value by value.
-    - name: Read the configuration the container generated from the role's env file
-      ansible.builtin.slurp:
-        src: "{{ ihatemoney_molecule_data_path }}/ihatemoney.cfg"
-      register: ihatemoney_cfg
+        # The container's entrypoint turns the role's env file into this Python
+        # configuration file. Reading it back is how the env file is checked to have
+        # arrived, value by value.
+        - name: Read the configuration the container generated from the role's env file
+          ansible.builtin.slurp:
+            src: "{{ ihatemoney_molecule_data_path }}/ihatemoney.cfg"
+          register: ihatemoney_cfg
 
-    - name: Assert that the role's configuration reached the container
-      vars:
-        ihatemoney_cfg_lines: "{{ (ihatemoney_cfg.content | b64decode).splitlines() }}"
-        ihatemoney_molecule_socket_path: "{{ ihatemoney_defaults.ihatemoney_database_postgres_socket_path_container }}"
-      ansible.builtin.assert:
-        that: item in ihatemoney_cfg_lines
-        fail_msg: "The generated configuration has no `{{ item }}` line"
-        success_msg: "The generated configuration has `{{ item }}`"
-      loop:
-        # The image's own default is `tralala`.
-        - 'SECRET_KEY = "{{ ihatemoney_environment_variable_secret }}"'
-        # The image's own default is True.
-        - 'ACTIVATE_DEMO_PROJECT = False'
-        # The role's own default is False.
-        - 'ALLOW_PUBLIC_PROJECT_CREATION = True'
-        # The image's own default is `sqlite:////database/ihatemoney.db`.
-        - >-
-          SQLALCHEMY_DATABASE_URI =
-          "postgresql://{{ ihatemoney_database_postgres_username }}:{{ ihatemoney_database_postgres_password }}@localhost/{{ ihatemoney_database_name }}?host={{ ihatemoney_molecule_socket_path }}&client_encoding=utf8"
+        - name: Assert that the role's configuration reached the container
+          vars:
+            ihatemoney_cfg_lines: "{{ (ihatemoney_cfg.content | b64decode).splitlines() }}"
+            ihatemoney_molecule_socket_path: "{{ ihatemoney_defaults.ihatemoney_database_postgres_socket_path_container }}"
+          ansible.builtin.assert:
+            that: item in ihatemoney_cfg_lines
+            fail_msg: "The generated configuration has no `{{ item }}` line"
+            success_msg: "The generated configuration has `{{ item }}`"
+          loop:
+            # The image's own default is `tralala`.
+            - 'SECRET_KEY = "{{ ihatemoney_environment_variable_secret }}"'
+            # The image's own default is True.
+            - 'ACTIVATE_DEMO_PROJECT = False'
+            # The role's own default is False.
+            - 'ALLOW_PUBLIC_PROJECT_CREATION = True'
+            # The image's own default is `sqlite:////database/ihatemoney.db`.
+            - >-
+              SQLALCHEMY_DATABASE_URI =
+              "postgresql://{{ ihatemoney_database_postgres_username }}:{{ ihatemoney_database_postgres_password }}@localhost/{{ ihatemoney_database_name }}?host={{ ihatemoney_molecule_socket_path }}&client_encoding=utf8"
 
-    # The version the process actually imported, not one printed from a label or
-    # from the image tag, so a bumped tag that did not pull cannot pass.
-    - name: Query the version of the running I hate money
-      ansible.builtin.command:
-        argv:
-          - docker
-          - exec
-          - "{{ ihatemoney_molecule_container }}"
-          - python
-          - -c
-          - "from importlib.metadata import version; print(version('ihatemoney'))"
-      register: ihatemoney_reported_version
-      changed_when: false
+        # The version the process actually imported, not one printed from a label or
+        # from the image tag, so a bumped tag that did not pull cannot pass.
+        - name: Query the version of the running I hate money
+          ansible.builtin.command:
+            argv:
+              - docker
+              - exec
+              - "{{ ihatemoney_molecule_container }}"
+              - python
+              - -c
+              - "from importlib.metadata import version; print(version('ihatemoney'))"
+          register: ihatemoney_reported_version
+          changed_when: false
 
-    - name: Assert the running I hate money is the version this role installs
-      ansible.builtin.assert:
-        that: ihatemoney_reported_version.stdout | trim == ihatemoney_defaults.ihatemoney_version | string
-        fail_msg: "I hate money reports {{ ihatemoney_reported_version.stdout | trim | default('none') }}, expected {{ ihatemoney_defaults.ihatemoney_version }}"
-        success_msg: "I hate money reports {{ ihatemoney_reported_version.stdout | trim }}"
+        - name: Assert the running I hate money is the version this role installs
+          ansible.builtin.assert:
+            that: ihatemoney_reported_version.stdout | trim == ihatemoney_defaults.ihatemoney_version | string
+            fail_msg: "I hate money reports {{ ihatemoney_reported_version.stdout | trim | default('none') }}, expected {{ ihatemoney_defaults.ihatemoney_version }}"
+            success_msg: "I hate money reports {{ ihatemoney_reported_version.stdout | trim }}"
 
-    - name: Read the marker from the additional volume mounted into the container
-      ansible.builtin.command:
-        cmd: >-
-          docker exec
-          {{ ihatemoney_molecule_container }}
-          cat {{ ihatemoney_molecule_extra_mount_path_container }}/marker
-      register: ihatemoney_extra_mount_marker
-      changed_when: false
-      failed_when: false
+        - name: Read the marker from the additional volume mounted into the container
+          ansible.builtin.command:
+            cmd: >-
+              docker exec
+              {{ ihatemoney_molecule_container }}
+              cat {{ ihatemoney_molecule_extra_mount_path_container }}/marker
+          register: ihatemoney_extra_mount_marker
+          changed_when: false
+          failed_when: false
 
-    - name: Assert that the additional volume was mounted into the container
-      ansible.builtin.assert:
-        that: ihatemoney_extra_mount_marker.stdout | trim == ihatemoney_molecule_extra_mount_marker
-        fail_msg: >-
-          {{ ihatemoney_molecule_extra_mount_path_container }}/marker does not hold the marker,
-          so `ihatemoney_container_additional_volumes` never became a `--mount` argument
-        success_msg: "`ihatemoney_container_additional_volumes` became a `--mount` argument"
+        - name: Assert that the additional volume was mounted into the container
+          ansible.builtin.assert:
+            that: ihatemoney_extra_mount_marker.stdout | trim == ihatemoney_molecule_extra_mount_marker
+            fail_msg: >-
+              {{ ihatemoney_molecule_extra_mount_path_container }}/marker does not hold the marker,
+              so `ihatemoney_container_additional_volumes` never became a `--mount` argument
+            success_msg: "`ihatemoney_container_additional_volumes` became a `--mount` argument"
 
-    - name: Read the container label file
-      ansible.builtin.slurp:
-        src: "{{ ihatemoney_molecule_base_path }}/labels"
-      register: ihatemoney_labels
+        - name: Read the container label file
+          ansible.builtin.slurp:
+            src: "{{ ihatemoney_molecule_base_path }}/labels"
+          register: ihatemoney_labels
 
-    # Every Traefik label in templates/labels.j2 lives inside the
-    # `ihatemoney_container_labels_traefik_enabled` conditional. With it off,
-    # not one of them may be emitted.
-    - name: Assert that no Traefik labels are emitted while they are disabled
-      vars:
-        ihatemoney_label_lines: "{{ (ihatemoney_labels.content | b64decode).splitlines() | select('match', '\\s*traefik[.]') | list }}"
-      ansible.builtin.assert:
-        that: ihatemoney_label_lines | length == 0
-        fail_msg: "The label file carries Traefik labels even though they are disabled: {{ ihatemoney_label_lines }}"
-        success_msg: "The label file carries no Traefik labels"
+        # Every Traefik label in templates/labels.j2 lives inside the
+        # `ihatemoney_container_labels_traefik_enabled` conditional. With it off,
+        # not one of them may be emitted.
+        - name: Assert that no Traefik labels are emitted while they are disabled
+          vars:
+            ihatemoney_label_lines: "{{ (ihatemoney_labels.content | b64decode).splitlines() | select('match', '\\s*traefik[.]') | list }}"
+          ansible.builtin.assert:
+            that: ihatemoney_label_lines | length == 0
+            fail_msg: "The label file carries Traefik labels even though they are disabled: {{ ihatemoney_label_lines }}"
+            success_msg: "The label file carries no Traefik labels"
 
-    - name: Create a project over the I hate money API
-      ansible.builtin.uri:
-        url: "{{ ihatemoney_molecule_base_url }}/api/projects"
-        method: POST
-        body_format: json
-        body:
-          name: Molecule Project
-          id: "{{ ihatemoney_molecule_project_id }}"
-          password: "{{ ihatemoney_molecule_project_password }}"
-          contact_email: molecule@example.com
-          default_currency: XXX
-        status_code: 201
+        - name: Create a project over the I hate money API
+          ansible.builtin.uri:
+            url: "{{ ihatemoney_molecule_base_url }}/api/projects"
+            method: POST
+            body_format: json
+            body:
+              name: Molecule Project
+              id: "{{ ihatemoney_molecule_project_id }}"
+              password: "{{ ihatemoney_molecule_project_password }}"
+              contact_email: molecule@example.com
+              default_currency: XXX
+            status_code: 201
 
-    - name: Read the project back over the I hate money API
-      ansible.builtin.uri:
-        url: "{{ ihatemoney_molecule_base_url }}/api/projects/{{ ihatemoney_molecule_project_id }}"
-        method: GET
-        url_username: "{{ ihatemoney_molecule_project_id }}"
-        url_password: "{{ ihatemoney_molecule_project_password }}"
-        force_basic_auth: true
-        status_code: 200
-      register: ihatemoney_project
+        - name: Read the project back over the I hate money API
+          ansible.builtin.uri:
+            url: "{{ ihatemoney_molecule_base_url }}/api/projects/{{ ihatemoney_molecule_project_id }}"
+            method: GET
+            url_username: "{{ ihatemoney_molecule_project_id }}"
+            url_password: "{{ ihatemoney_molecule_project_password }}"
+            force_basic_auth: true
+            status_code: 200
+          register: ihatemoney_project
 
-    - name: Assert that the project came back
-      ansible.builtin.assert:
-        that: ihatemoney_project.json.id == ihatemoney_molecule_project_id
-        fail_msg: "The API returned {{ ihatemoney_project.json | default('none') }}"
-        success_msg: "The API round-tripped the project"
+        - name: Assert that the project came back
+          ansible.builtin.assert:
+            that: ihatemoney_project.json.id == ihatemoney_molecule_project_id
+            fail_msg: "The API returned {{ ihatemoney_project.json | default('none') }}"
+            success_msg: "The API round-tripped the project"
 
-    # The point of this scenario. Asked of Postgres itself, not of I hate money:
-    # the row has to be in the database server the role pointed the app at.
-    - name: Read the project rows out of Postgres
-      ansible.builtin.command:
-        argv:
-          - docker
-          - exec
-          - --env
-          - "PGPASSWORD={{ postgres_connection_password }}"
-          - "{{ ihatemoney_molecule_postgres_container }}"
-          - psql
-          - --host=127.0.0.1
-          - "--username={{ ihatemoney_molecule_postgres_superuser }}"
-          - "--dbname={{ ihatemoney_database_name }}"
-          - --tuples-only
-          - --no-align
-          - --command=SELECT id FROM project
-      register: ihatemoney_postgres_projects
-      changed_when: false
-      failed_when: false
+        # The point of this scenario. Asked of Postgres itself, not of I hate money:
+        # the row has to be in the database server the role pointed the app at.
+        - name: Read the project rows out of Postgres
+          ansible.builtin.command:
+            argv:
+              - docker
+              - exec
+              - --env
+              - "PGPASSWORD={{ postgres_connection_password }}"
+              - "{{ ihatemoney_molecule_postgres_container }}"
+              - psql
+              - --host=127.0.0.1
+              - "--username={{ ihatemoney_molecule_postgres_superuser }}"
+              - "--dbname={{ ihatemoney_database_name }}"
+              - --tuples-only
+              - --no-align
+              - --command=SELECT id FROM project
+          register: ihatemoney_postgres_projects
+          changed_when: false
+          failed_when: false
 
-    - name: Assert that I hate money stored the project in Postgres
-      ansible.builtin.assert:
-        that: ihatemoney_molecule_project_id in (ihatemoney_postgres_projects.stdout | default('')).splitlines()
-        fail_msg: >-
-          The `project` table in the `{{ ihatemoney_database_name }}` database does not hold the project
-          (rc {{ ihatemoney_postgres_projects.rc | default('?') }},
-          stdout {{ ihatemoney_postgres_projects.stdout | default('') | trim }},
-          stderr {{ ihatemoney_postgres_projects.stderr | default('') | trim }})
-        success_msg: "The project is stored in the `{{ ihatemoney_database_name }}` Postgres database"
+        - name: Assert that I hate money stored the project in Postgres
+          ansible.builtin.assert:
+            that: ihatemoney_molecule_project_id in (ihatemoney_postgres_projects.stdout | default('')).splitlines()
+            fail_msg: >-
+              The `project` table in the `{{ ihatemoney_database_name }}` database does not hold the project
+              (rc {{ ihatemoney_postgres_projects.rc | default('?') }},
+              stdout {{ ihatemoney_postgres_projects.stdout | default('') | trim }},
+              stderr {{ ihatemoney_postgres_projects.stderr | default('') | trim }})
+            success_msg: "The project is stored in the `{{ ihatemoney_database_name }}` Postgres database"
 
-    # And it must not have quietly fallen back to a SQLite file, which is what
-    # the image does when it is given no connection string of its own.
-    - name: Stat a SQLite database file in the role's data directory
-      ansible.builtin.stat:
-        path: "{{ ihatemoney_molecule_data_path }}/ihatemoney.db"
-      register: ihatemoney_sqlite_file
+        # And it must not have quietly fallen back to a SQLite file, which is what
+        # the image does when it is given no connection string of its own.
+        - name: Stat a SQLite database file in the role's data directory
+          ansible.builtin.stat:
+            path: "{{ ihatemoney_molecule_data_path }}/ihatemoney.db"
+          register: ihatemoney_sqlite_file
 
-    - name: Assert that no SQLite database was created
-      ansible.builtin.assert:
-        that: not ihatemoney_sqlite_file.stat.exists
-        fail_msg: "{{ ihatemoney_molecule_data_path }}/ihatemoney.db exists, so I hate money fell back to SQLite"
-        success_msg: "No SQLite database was created"
+        - name: Assert that no SQLite database was created
+          ansible.builtin.assert:
+            that: not ihatemoney_sqlite_file.stat.exists
+            fail_msg: "{{ ihatemoney_molecule_data_path }}/ihatemoney.db exists, so I hate money fell back to SQLite"
+            success_msg: "No SQLite database was created"
 
-    - name: Show the I hate money verification summary
-      ansible.builtin.debug:
-        msg:
-          - "I hate money systemd: {{ ihatemoney_service.status.ActiveState }}"
-          - "I hate money version: {{ ihatemoney_reported_version.stdout | trim }}"
-          - "I hate money HTTP {{ ihatemoney_endpoint.status }} at {{ ihatemoney_molecule_base_url }}/"
-          - "I hate money database: postgres, `{{ ihatemoney_database_name }}`"
+        - name: Show the I hate money verification summary
+          ansible.builtin.debug:
+            msg:
+              - "I hate money systemd: {{ ihatemoney_service.status.ActiveState }}"
+              - "I hate money version: {{ ihatemoney_reported_version.stdout | trim }}"
+              - "I hate money HTTP {{ ihatemoney_endpoint.status }} at {{ ihatemoney_molecule_base_url }}/"
+              - "I hate money database: postgres, `{{ ihatemoney_database_name }}`"
 
       rescue:
         # Whatever went wrong, the reason is almost always in the systemd service log.
