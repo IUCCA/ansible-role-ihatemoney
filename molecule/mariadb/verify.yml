@@ -18,12 +18,10 @@
       http://{{ ihatemoney_container_http_host_bind_port }}{{ '' if ihatemoney_path_prefix == '/' else ihatemoney_path_prefix }}
 
   tasks:
-    # Only leaf literals are read out of this: `ihatemoney_version` is the line
-    # Renovate edits, and the container-side socket path is what the role's
-    # connection string is built around. Anything the scenario tunes has to come
-    # from the scenario's own group_vars, since this file would otherwise
-    # quietly outrank them.
-    - name: Read the role's own defaults
+    # The role is not included in this playbook, so its defaults are not in
+    # scope. Reading defaults/main.yml directly ties the version assertion
+    # below.
+    - name: Load the role defaults
       ansible.builtin.include_vars:
         file: "{{ lookup('env', 'MOLECULE_PROJECT_DIRECTORY') }}/defaults/main.yml"
         name: ihatemoney_role_defaults
