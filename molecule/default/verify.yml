@@ -18,6 +18,8 @@
       http://{{ ihatemoney_container_http_host_bind_port }}{{ '' if ihatemoney_path_prefix == '/' else ihatemoney_path_prefix }}
 
   tasks:
+    - name: Verify that I hate money works
+      block:
     # The role is not included in this playbook, so its defaults are not in
     # scope. Reading defaults/main.yml directly ties the version assertion
     # below.
@@ -242,3 +244,19 @@
           - "I hate money version: {{ ihatemoney_reported_version.stdout | trim }}"
           - "I hate money HTTP {{ ihatemoney_endpoint.status }} at {{ ihatemoney_molecule_base_url }}/"
           - "I hate money database: sqlite at {{ ihatemoney_molecule_data_path }}/ihatemoney.db"
+
+      rescue:
+        # Whatever went wrong, the reason is almost always in the systemd service log.
+        - name: Retrieve the I hate money systemd service log
+          ansible.builtin.command:
+            cmd: journalctl --no-pager --output=cat --unit=ihatemoney.service
+          register: ihatemoney_service_log
+          changed_when: false
+
+        - name: Show the I hate money systemd service log
+          ansible.builtin.debug:
+            var: ihatemoney_service_log.stdout_lines
+
+        - name: Fail because verification did not pass
+          ansible.builtin.fail:
+            msg: "I hate money verification failed. The systemd service log is printed above."
