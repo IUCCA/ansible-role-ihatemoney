@@ -119,7 +119,7 @@
 
     # The version the process actually imported, not one printed from a label or
     # from the image tag, so a bumped tag that did not pull cannot pass.
-    - name: Read the I hate money version the running container reports
+    - name: Query the version of the running I hate money
       ansible.builtin.command:
         argv:
           - docker
