@@ -121,13 +121,11 @@
       register: ihatemoney_reported_version
       changed_when: false
 
-    - name: Assert that the running I hate money is the version the role pins
+    - name: Assert the running I hate money is the version this role installs
       ansible.builtin.assert:
-        that: ihatemoney_reported_version.stdout | trim == ihatemoney_role_defaults.ihatemoney_version | string
-        fail_msg: >-
-          The container reports {{ ihatemoney_reported_version.stdout | trim }},
-          while defaults/main.yml pins {{ ihatemoney_role_defaults.ihatemoney_version }}
-        success_msg: "The container runs I hate money {{ ihatemoney_role_defaults.ihatemoney_version }}"
+        that: ihatemoney_reported_version.stdout | trim == ihatemoney_defaults.ihatemoney_version | string
+        fail_msg: "I hate money reports {{ ihatemoney_reported_version.stdout | trim | default('none') }}, expected {{ ihatemoney_defaults.ihatemoney_version }}"
+        success_msg: "I hate money reports {{ ihatemoney_reported_version.stdout | trim }}"
 
     - name: Read the marker from the additional volume mounted into the container
       ansible.builtin.command:
