@@ -191,7 +191,7 @@
     - name: Assert that the project came back
       ansible.builtin.assert:
         that: ihatemoney_project.json.id == ihatemoney_molecule_project_id
-        fail_msg: "The API returned {{ ihatemoney_project.json | default('nothing') }}"
+        fail_msg: "The API returned {{ ihatemoney_project.json | default('none') }}"
         success_msg: "The API round-tripped the project"
 
     # The point of this scenario. Asked of Postgres itself, not of I hate money:
