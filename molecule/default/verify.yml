@@ -140,12 +140,10 @@
 
     - name: Read the marker from the additional volume mounted into the container
       ansible.builtin.command:
-        argv:
-          - docker
-          - exec
-          - "{{ ihatemoney_molecule_container }}"
-          - cat
-          - "{{ ihatemoney_molecule_extra_mount_path_container }}/marker"
+        cmd: >-
+          docker exec
+          {{ ihatemoney_molecule_container }}
+          cat {{ ihatemoney_molecule_extra_mount_path_container }}/marker
       register: ihatemoney_extra_mount_marker
       changed_when: false
       failed_when: false
