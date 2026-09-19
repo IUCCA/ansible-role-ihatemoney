@@ -31,6 +31,7 @@ provisioner:
       all:
         # Helper variables
         ihatemoney_debug_service_enabled: false
+        ihatemoney_restarts_check_enabled: true
 
         # The paths and the container name the role derives from its identifier.
         # Those defaults are Jinja-derived, so a verify play cannot read them out

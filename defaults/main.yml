@@ -124,6 +124,12 @@ ihatemoney_container_extra_arguments: "{{ ihatemoney_container_extra_arguments_a
 ihatemoney_container_extra_arguments_auto: []
 ihatemoney_container_extra_arguments_custom: []
 
+# A list of extra arguments to pass to the process inside the container
+# Example: ['--SOME_ARGUMENT']
+ihatemoney_process_extra_arguments: "{{ ihatemoney_process_extra_arguments_auto + ihatemoney_process_extra_arguments_custom }}"
+ihatemoney_process_extra_arguments_auto: []
+ihatemoney_process_extra_arguments_custom: []
+
 # Specifies the value of the `X-XSS-Protection` header
 # Stops pages from loading when they detect reflected cross-site scripting (XSS) attacks.
 #
