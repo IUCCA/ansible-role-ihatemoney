@@ -129,7 +129,7 @@ To let anyone create a project, add the following configuration to your `vars.ym
 ihatemoney_public_project_creation: true
 ```
 
-To instead reserve project creation for whoever knows the administrator password, leave `ihatemoney_public_project_creation` at `false` and set `ihatemoney_admin_password` (see [Enabling administrative tasks](#enabling-administrative-tasks) below for how to generate its value). Setting the administrator password also enables the administration dashboard.
+To instead reserve project creation for whoever knows the administrator password, leave `ihatemoney_public_project_creation` at `false` and set `ihatemoney_admin_password` (refer to [Enabling administrative tasks](#enabling-administrative-tasks) below for how to generate its value). Setting the administrator password also enables the administration dashboard.
 
 The two settings are independent: with `ihatemoney_public_project_creation` set to `true`, project creation stays open to everyone even while the administrator password is set.
 
@@ -141,7 +141,7 @@ Take a look at:
 
 - [`defaults/main.yml`](../defaults/main.yml) for some variables that you can customize via your `vars.yml` file. You can pass additional environment variables to the container using the `ihatemoney_container_additional_environment_variables` variable
 
-See [the official documentation](https://ihatemoney.readthedocs.io/en/latest/configuration.html) for a complete list of I hate money's config options.
+Refer to [the official documentation](https://ihatemoney.readthedocs.io/en/latest/configuration.html) for a complete list of I hate money's config options.
 
 Note that the container image does not read its settings from the environment directly. Its entrypoint builds `/etc/ihatemoney/ihatemoney.cfg` by interpolating a fixed list of variable names, so only a setting on that list can be reached through `ihatemoney_container_additional_environment_variables`: `DEBUG`, `ACTIVATE_ADMIN_DASHBOARD`, `ACTIVATE_DEMO_PROJECT`, `ADMIN_PASSWORD`, `ALLOW_PUBLIC_PROJECT_CREATION`, `BABEL_DEFAULT_TIMEZONE`, `MAIL_DEFAULT_SENDER`, `MAIL_PASSWORD`, `MAIL_PORT`, `MAIL_SERVER`, `MAIL_USE_SSL`, `MAIL_USE_TLS`, `MAIL_USERNAME`, `SECRET_KEY`, `SESSION_COOKIE_SECURE`, `SHOW_ADMIN_EMAIL`, `SQLALCHEMY_DATABASE_URI`, `SQLALCHEMY_TRACK_MODIFICATIONS`, `APPLICATION_ROOT`, `ENABLE_CAPTCHA` and `LEGAL_LINK`. Anything else is passed to the container and ignored.
 
