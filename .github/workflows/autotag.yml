@@ -27,7 +27,7 @@ permissions:
 jobs:
   autotag:
     name: Autotag
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
 
     # Releases are cut in the repository this role is published from, and there
     # only. A fork sees its own, incomplete set of tags, so it would compute a
